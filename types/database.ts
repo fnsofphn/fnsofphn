@@ -1,0 +1,165 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type TaskStatus = "todo" | "doing" | "done";
+export type FinanceType = "income" | "expense" | "saving";
+export type EnergyCategory =
+  | "emotional_release"
+  | "body_rhythm"
+  | "imagination_flow"
+  | "deep_work_calm"
+  | "skill_drilling"
+  | "practical_learning";
+
+type BaseRow = {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProfileRow = BaseRow & {
+  email: string | null;
+  full_name: string | null;
+  birth_date: string | null;
+  western_zodiac_label: string | null;
+  lunar_year_label: string | null;
+  element_label: string | null;
+  preferred_theme: string;
+};
+
+export type TaskRow = BaseRow & {
+  title: string;
+  status: TaskStatus;
+  category: string;
+  priority: number;
+  due_on: string | null;
+  notes: string | null;
+};
+
+export type DailyPriorityRow = BaseRow & {
+  title: string;
+  rank: number;
+  completed: boolean;
+  planned_on: string;
+  source_task_id: string | null;
+};
+
+export type FinanceEntryRow = BaseRow & {
+  type: FinanceType;
+  category: string;
+  amount: number;
+  occurred_on: string;
+  notes: string | null;
+};
+
+export type HealthLogRow = BaseRow & {
+  logged_on: string;
+  sleep_hours: number;
+  water_liters: number;
+  steps: number;
+  workouts_count: number;
+  energy_score: number;
+  notes: string | null;
+};
+
+export type StudySessionRow = BaseRow & {
+  topic: string;
+  duration_minutes: number;
+  occurred_on: string;
+  weekly_target_minutes: number;
+  notes: string | null;
+};
+
+export type TimeLogRow = BaseRow & {
+  logged_on: string;
+  deep_work_minutes: number;
+  screen_time_minutes: number;
+  top_priorities: string[];
+  planning_notes: string | null;
+};
+
+export type RelationshipLogRow = BaseRow & {
+  person_name: string;
+  action_taken: string;
+  completed: boolean;
+  occurred_on: string;
+  notes: string | null;
+};
+
+export type EmotionLogRow = BaseRow & {
+  logged_on: string;
+  mood_score: number;
+  gratitude_text: string | null;
+  journal_text: string | null;
+};
+
+export type SpiritualProfileRow = BaseRow & {
+  birth_date: string;
+  western_zodiac_label: string;
+  lunar_year_label: string;
+  element_label: string;
+  clarity_score: number;
+  energy_score: number;
+  ritual_text: string | null;
+  feng_shui_focus_text: string | null;
+  reflection_note: string | null;
+};
+
+export type StrategyProfileRow = BaseRow & {
+  life_theme: string | null;
+  strongest_leverage: string | null;
+  blind_spot: string | null;
+  next_90_days_plan: string | null;
+  non_negotiables: string[];
+  focus_level_score: number;
+};
+
+export type EnergyActivityTypeRow = BaseRow & {
+  name: string;
+  category: EnergyCategory;
+  description: string | null;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type EnergyActivityLogRow = BaseRow & {
+  activity_type_id: string;
+  logged_on: string;
+  completed: boolean;
+  duration_minutes: number | null;
+  notes: string | null;
+};
+
+type TableDefinition<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
+  Row: Row;
+  Insert: Insert;
+  Update: Update;
+  Relationships: never[];
+};
+
+export interface Database {
+  public: {
+    Tables: {
+      profiles: TableDefinition<ProfileRow>;
+      tasks: TableDefinition<TaskRow>;
+      daily_priorities: TableDefinition<DailyPriorityRow>;
+      finance_entries: TableDefinition<FinanceEntryRow>;
+      health_logs: TableDefinition<HealthLogRow>;
+      study_sessions: TableDefinition<StudySessionRow>;
+      time_logs: TableDefinition<TimeLogRow>;
+      relationship_logs: TableDefinition<RelationshipLogRow>;
+      emotion_logs: TableDefinition<EmotionLogRow>;
+      spiritual_profiles: TableDefinition<SpiritualProfileRow>;
+      strategy_profiles: TableDefinition<StrategyProfileRow>;
+      energy_activity_types: TableDefinition<EnergyActivityTypeRow>;
+      energy_activity_logs: TableDefinition<EnergyActivityLogRow>;
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+}
+
+export type TableName = keyof Database["public"]["Tables"];
+export type TableRow<T extends TableName> = Database["public"]["Tables"][T]["Row"];
