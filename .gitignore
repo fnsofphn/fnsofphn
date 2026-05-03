@@ -33,6 +33,7 @@ desktop.ini
 
 # codex-local runtime caches
 .corepack
+.npm-cache
 .tmp
 tsconfig.tsbuildinfo
 
