@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasSupabaseEnv } from "@/lib/supabase/env";
 
 export type AuthUser = {
   id: string;
@@ -7,6 +8,10 @@ export type AuthUser = {
 };
 
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {
+  if (!hasSupabaseEnv()) {
+    return null;
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
 

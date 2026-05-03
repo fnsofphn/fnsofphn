@@ -3,6 +3,8 @@ import { redirectIfAuthenticated } from "@/lib/auth/guards";
 import { AuthCard } from "@/features/auth/auth-card";
 import { MorphBackground } from "@/components/shared/morph-background";
 
+export const dynamic = "force-dynamic";
+
 export default async function SignUpPage() {
   await redirectIfAuthenticated();
 
