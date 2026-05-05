@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Activity,
+  BarChart3,
   BookOpen,
   Brain,
   CalendarClock,
@@ -38,6 +39,7 @@ const navItems = [
   { href: "/app", label: "Tổng quan", icon: Home },
   { href: "/app/tasks", label: "Nhiệm vụ", icon: CheckSquare2 },
   { href: "/app/finance", label: "Tài chính", icon: WalletCards },
+  { href: "/app/trading", label: "Vibe Trading", icon: BarChart3 },
   { href: "/app/health", label: "Sức khỏe", icon: Activity },
   { href: "/app/study", label: "Học tập", icon: BookOpen },
   { href: "/app/time", label: "Thời gian", icon: CalendarClock },

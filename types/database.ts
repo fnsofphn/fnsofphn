@@ -10,6 +10,10 @@ export type EnergyCategory =
   | "deep_work_calm"
   | "skill_drilling"
   | "practical_learning";
+export type TradingMarket = "crypto" | "us_stock" | "vn_stock" | "forex" | "futures" | "other";
+export type TradingBias = "bullish" | "bearish" | "neutral";
+export type TradingIdeaStatus = "researching" | "ready" | "testing" | "archived";
+export type TradingBacktestVerdict = "promising" | "observe" | "reject";
 
 type BaseRow = {
   id: string;
@@ -152,6 +156,41 @@ export type RecurringTaskTemplateRow = BaseRow & {
   is_active: boolean;
 };
 
+export type TradingWatchlistRow = BaseRow & {
+  symbol: string;
+  market: TradingMarket;
+  thesis: string | null;
+  bias: TradingBias;
+  alert_price: number | null;
+  is_active: boolean;
+};
+
+export type TradingIdeaRow = BaseRow & {
+  title: string;
+  prompt: string;
+  symbol: string | null;
+  market: TradingMarket;
+  timeframe: string;
+  status: TradingIdeaStatus;
+  thesis: string | null;
+  risk_notes: string | null;
+};
+
+export type TradingBacktestRow = BaseRow & {
+  idea_id: string | null;
+  title: string;
+  symbol: string | null;
+  timeframe: string;
+  period_label: string;
+  total_return: number;
+  max_drawdown: number;
+  sharpe: number;
+  win_rate: number;
+  trade_count: number;
+  verdict: TradingBacktestVerdict;
+  notes: string | null;
+};
+
 type TableDefinition<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row;
   Insert: Insert;
@@ -177,6 +216,9 @@ export interface Database {
       quick_notes: TableDefinition<QuickNoteRow>;
       energy_activity_types: TableDefinition<EnergyActivityTypeRow>;
       energy_activity_logs: TableDefinition<EnergyActivityLogRow>;
+      trading_watchlist: TableDefinition<TradingWatchlistRow>;
+      trading_ideas: TableDefinition<TradingIdeaRow>;
+      trading_backtests: TableDefinition<TradingBacktestRow>;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
