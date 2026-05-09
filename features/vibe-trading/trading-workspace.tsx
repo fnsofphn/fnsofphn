@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { BarChart3, BrainCircuit, CandlestickChart, LineChart, NotebookPen, Plus, ShieldAlert, Sparkles, Target, TrendingUp } from "lucide-react";
+import { BarChart3, BrainCircuit, CandlestickChart, LineChart, NotebookPen, Plus, Sparkles, Target, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -211,12 +211,6 @@ function IdeaItem({ item }: { item: TradingIdeaRow }) {
         <Badge variant="neutral">{item.status}</Badge>
       </div>
       <p className="mt-3 line-clamp-2 text-sm leading-6 text-text-secondary">{item.prompt}</p>
-      {item.risk_notes ? (
-        <p className="mt-3 flex gap-2 rounded-2xl bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-700">
-          <ShieldAlert className="mt-0.5 size-4 shrink-0" />
-          {item.risk_notes}
-        </p>
-      ) : null}
     </div>
   );
 }
