@@ -104,6 +104,28 @@ export async function ensureUserBootstrap(user: AuthUser) {
     });
   }
 
+  const altcoinIdeaTitle = "Chiến lược đánh altcoin lúc 15h";
+  const { data: altcoinTradingIdea } = await supabase
+    .from("trading_ideas")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("title", altcoinIdeaTitle)
+    .maybeSingle();
+
+  if (!altcoinTradingIdea) {
+    await supabase.from("trading_ideas").insert({
+      user_id: user.id,
+      title: altcoinIdeaTitle,
+      prompt: "Research altcoin vào lúc 15:00 hằng ngày. Chọn setup có thanh khoản và cấu trúc rõ, chỉ vào lệnh mô phỏng khi có trigger. Nếu có lãi thì chốt ngay 1/2 vị thế, dời stop-loss về entry, phần còn lại hold đến tối hoặc tối đa 2 ngày.",
+      symbol: "ALT-USDT",
+      market: "crypto",
+      timeframe: "1H/4H",
+      status: "researching",
+      thesis: "Luyện quy trình đánh altcoin có kỷ luật: research trước giờ cố định, vào khi setup rõ, giảm rủi ro ngay khi vị thế có lãi bằng cách chốt 1/2 và đưa SL về hòa vốn.",
+      risk_notes: "Chỉ dùng cho paper-trading/luyện tập, không phải lời khuyên tài chính. Tránh coin thanh khoản thấp, tin tức bất ngờ, FOMO sau nến tăng mạnh và giữ quá 2 ngày khi setup đã mất hiệu lực."
+    });
+  }
+
   const { count: priorityCount } = await supabase
     .from("daily_priorities")
     .select("id", { count: "exact", head: true })

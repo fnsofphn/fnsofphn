@@ -150,6 +150,25 @@ begin
       and existing.title = seed.title
   );
 
+  insert into public.trading_ideas (user_id, title, prompt, symbol, market, timeframe, status, thesis, risk_notes)
+  select demo_user_id, seed.title, seed.prompt, seed.symbol, 'crypto', seed.timeframe, 'researching', seed.thesis, seed.risk_notes
+  from (
+    values (
+      'Chiến lược đánh altcoin lúc 15h',
+      'Research altcoin vào lúc 15:00 hằng ngày. Chọn setup có thanh khoản và cấu trúc rõ, chỉ vào lệnh mô phỏng khi có trigger. Nếu có lãi thì chốt ngay 1/2 vị thế, dời stop-loss về entry, phần còn lại hold đến tối hoặc tối đa 2 ngày.',
+      'ALT-USDT',
+      '1H/4H',
+      'Luyện quy trình đánh altcoin có kỷ luật: research trước giờ cố định, vào khi setup rõ, giảm rủi ro ngay khi vị thế có lãi bằng cách chốt 1/2 và đưa SL về hòa vốn.',
+      'Chỉ dùng cho paper-trading/luyện tập, không phải lời khuyên tài chính. Tránh coin thanh khoản thấp, tin tức bất ngờ, FOMO sau nến tăng mạnh và giữ quá 2 ngày khi setup đã mất hiệu lực.'
+    )
+  ) as seed(title, prompt, symbol, timeframe, thesis, risk_notes)
+  where not exists (
+    select 1
+    from public.trading_ideas existing
+    where existing.user_id = demo_user_id
+      and existing.title = seed.title
+  );
+
   insert into public.daily_priorities (user_id, title, rank, completed, planned_on)
   values
     (demo_user_id, 'Một khối coding sâu với nhạc nền êm', 1, false, current_date),
