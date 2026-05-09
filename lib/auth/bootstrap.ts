@@ -83,6 +83,27 @@ export async function ensureUserBootstrap(user: AuthUser) {
     );
   }
 
+  const tradingPracticeTitle = "Thực hành trading";
+  const { data: tradingPracticeTask } = await supabase
+    .from("recurring_task_templates")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("title", tradingPracticeTitle)
+    .maybeSingle();
+
+  if (!tradingPracticeTask) {
+    await supabase.from("recurring_task_templates").insert({
+      user_id: user.id,
+      title: tradingPracticeTitle,
+      category: "Trading",
+      priority: 4,
+      cadence: "daily",
+      next_due_on: today,
+      notes: "Chiến lược đánh altcoin: research và vào lúc 15:00 hằng ngày. Có lãi chốt ngay 1/2 vị thế, dời SL về entry, hold đến tối hoặc tối đa 2 ngày. Chỉ dùng cho paper-trading/luyện tập, không phải lời khuyên tài chính.",
+      is_active: true
+    });
+  }
+
   const { count: priorityCount } = await supabase
     .from("daily_priorities")
     .select("id", { count: "exact", head: true })

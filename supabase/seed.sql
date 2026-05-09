@@ -140,7 +140,8 @@ begin
     values
       ('Làm bảng công', 'Công việc', 4, 'monthly', current_date, 'Tổng hợp ngày công, giờ làm, nghỉ phép và ghi chú cần gửi.'),
       ('Dọn dẹp bộ nhớ máy tính', 'Bảo trì cá nhân', 3, 'weekly', current_date, 'Xóa file tạm, gom thư mục tải xuống, kiểm tra dung lượng ổ đĩa.'),
-      ('Lên kế hoạch chi tiêu hàng tháng', 'Tài chính', 5, 'monthly', current_date, 'Xem thu nhập dự kiến, khoản cố định, khoản tiết kiệm và ngân sách linh hoạt.')
+      ('Lên kế hoạch chi tiêu hàng tháng', 'Tài chính', 5, 'monthly', current_date, 'Xem thu nhập dự kiến, khoản cố định, khoản tiết kiệm và ngân sách linh hoạt.'),
+      ('Thực hành trading', 'Trading', 4, 'daily', current_date, 'Chiến lược đánh altcoin: research và vào lúc 15:00 hằng ngày. Có lãi chốt ngay 1/2 vị thế, dời SL về entry, hold đến tối hoặc tối đa 2 ngày. Chỉ dùng cho paper-trading/luyện tập, không phải lời khuyên tài chính.')
   ) as seed(title, category, priority, cadence, next_due_on, notes)
   where not exists (
     select 1
