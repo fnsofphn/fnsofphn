@@ -341,21 +341,23 @@ function SqueezeWatchlistStrategy() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-[22px] border border-white/70 bg-white/72 shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
-        <table className="min-w-[860px] w-full border-collapse text-left text-sm">
+      <div className="mt-6 overflow-x-auto rounded-[22px] border border-white/70 bg-white/82 shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
+        <table className="min-w-[900px] w-full border-separate border-spacing-0 text-left text-base">
           <thead>
-            <tr className="border-b border-border-soft bg-white/80">
-              <th className="w-44 px-4 py-3 font-bold text-text-primary">Bộ lọc</th>
-              <th className="px-4 py-3 font-bold text-cyan-800">Setup Long đẹp</th>
-              <th className="px-4 py-3 font-bold text-rose-800">Setup Short đẹp</th>
+            <tr className="bg-white/85">
+              <th className="w-48 border-b border-border-soft px-5 py-4 text-sm font-black uppercase tracking-wide text-text-primary">Bộ lọc</th>
+              <th className="border-b border-l border-cyan-200/60 bg-cyan-100/80 px-5 py-4 text-lg font-black text-cyan-900">Setup Long đẹp</th>
+              <th className="border-b border-l border-rose-200/60 bg-rose-100/80 px-5 py-4 text-lg font-black text-rose-900">Setup Short đẹp</th>
             </tr>
           </thead>
           <tbody>
             {squeezeCriteria.map((row) => (
-              <tr key={row.label} className="border-b border-border-soft/70 last:border-0">
-                <td className="px-4 py-3 font-semibold text-text-primary">{row.label}</td>
-                <td className="px-4 py-3 leading-6 text-text-secondary">{row.long}</td>
-                <td className="px-4 py-3 leading-6 text-text-secondary">{row.short}</td>
+              <tr key={row.label}>
+                <td className="border-b border-border-soft/70 bg-white/86 px-5 py-4">
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-black text-slate-800">{row.label}</span>
+                </td>
+                <td className="border-b border-l border-cyan-200/50 bg-cyan-50/72 px-5 py-4 font-bold leading-7 text-cyan-950">{row.long}</td>
+                <td className="border-b border-l border-rose-200/50 bg-rose-50/72 px-5 py-4 font-bold leading-7 text-rose-950">{row.short}</td>
               </tr>
             ))}
           </tbody>
