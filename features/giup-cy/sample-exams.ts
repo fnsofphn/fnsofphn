@@ -229,7 +229,7 @@ Trong các tinh dầu trên, theo quy định có bao nhiêu tinh dầu hành kh
     section: "Phần I",
     question_number: 17,
     question_type: "single_choice",
-    prompt: "Tùy thuộc vào pH của dung dịch, alanine tồn tại một số dạng như hình trong file gốc. Khi pH = 3 thì alanine sẽ tồn tại dạng nào trong các dạng trên? Cho biết pI của alanine là 6,01.",
+    prompt: "Tùy thuộc vào pH của dung dịch, alanine tồn tại một số dạng như hình. Khi pH = 3 thì alanine sẽ tồn tại dạng nào trong các dạng trên? Cho biết pI của alanine là 6,01.",
     options: choice("(3)", "(4)", "(1)", "(2)"),
     correct_answer: null,
     points: 0.25,
@@ -256,7 +256,7 @@ Trong các tinh dầu trên, theo quy định có bao nhiêu tinh dầu hành kh
 Thí nghiệm 1: Dùng 0,5 gam vụn đá hoa và 50mL dung dịch hydrochloric acid 1M.
 Thí nghiệm 2: Dùng 0,5 gam vụn đá hoa đã được nghiền nhỏ và 50mL dung dịch hydrochloric acid 1M.
 
-Sau đó, nhóm nghiên cứu đã đo thể tích khí sinh ra theo thời gian và xây dựng đồ thị như hình trong file gốc.`,
+Sau đó, nhóm nghiên cứu đã đo thể tích khí sinh ra theo thời gian và xây dựng đồ thị như hình.`,
     options: tfOptions(
       "Yếu tố chính làm thay đổi tốc độ phản ứng giữa 2 thí nghiệm trên là diện tích tiếp xúc của vụn đá hoa.",
       "Tốc độ phản ứng trung bình trong 100 giây đầu tiên của thí nghiệm 1 và 2 lần lượt là 0,7 (cm3/s) và 0,8 (cm3/s).",
@@ -266,7 +266,7 @@ Sau đó, nhóm nghiên cứu đã đo thể tích khí sinh ra theo thời gian
     correct_answer: { a: true, b: true, c: false, d: true },
     points: 1,
     needs_review: true,
-    explanation: "Hướng dẫn giải: Đúng, Đúng, Sai, Đúng. Cần rà hình đồ thị trong file gốc.",
+    explanation: "Hướng dẫn giải: Đúng, Đúng, Sai, Đúng.",
     sort_order: 19
   },
   {
@@ -275,7 +275,7 @@ Sau đó, nhóm nghiên cứu đã đo thể tích khí sinh ra theo thời gian
     question_type: "true_false",
     prompt: `Theo Tiêu chuẩn Việt Nam TCVN 7624 : 2007, khi chế tạo gương, chiều dày lớp bạc phủ trên bề mặt tấm kính phải đạt tối thiểu 0,7 g/m2. Một công ty cần sản xuất 30 000 m2 gương có độ dày lớp bạc phủ ở mức 0,75 g/m2.
 
-Để tạo ra bạc, người ta tiến hành theo sơ đồ phản ứng trong file gốc:
+Để tạo ra bạc, người ta tiến hành theo sơ đồ phản ứng như hình:
 Saccharose + H2O; xt H+, t° → dung dịch A → trung hòa acid → dung dịch B + dd[Ag(NH3)2]OH, t° dư → Ag.
 
 Biết hiệu suất cả quá trình là 75%.`,
@@ -306,7 +306,7 @@ Biết hiệu suất cả quá trình là 75%.`,
     correct_answer: { a: false, b: false, c: true, d: true },
     points: 1,
     needs_review: true,
-    explanation: "Hướng dẫn giải: Sai, Sai, Đúng, Đúng. Cần rà sơ đồ trong file gốc.",
+    explanation: "Hướng dẫn giải: Sai, Sai, Đúng, Đúng.",
     sort_order: 21
   },
   {
@@ -314,7 +314,7 @@ Biết hiệu suất cả quá trình là 75%.`,
     question_number: 22,
     question_type: "true_false",
     prompt:
-      "Isopropyl myristate là một ester thường được sử dụng trong kem dưỡng da, dầu tẩy trang và sản phẩm chăm sóc tóc như một chất làm mềm, chất kết dính và chất tăng hương thơm vì khả năng thẩm thấu tốt mà không gây nhờn rít. Ester này được tạo ra từ phản ứng giữa acid béo bão hòa myristic và isopropyl alcohol. Công thức khung phân tử của isopropyl myristate có trong file gốc.",
+      "Isopropyl myristate là một ester thường được sử dụng trong kem dưỡng da, dầu tẩy trang và sản phẩm chăm sóc tóc như một chất làm mềm, chất kết dính và chất tăng hương thơm vì khả năng thẩm thấu tốt mà không gây nhờn rít. Ester này được tạo ra từ phản ứng giữa acid béo bão hòa myristic và isopropyl alcohol. Công thức khung phân tử của isopropyl myristate như hình.",
     options: tfOptions(
       "Khi thủy phân isopropyl myristate trong môi trường kiềm (NaOH) đun nóng, sản phẩm thu được gồm sodium myristate và propan-2-ol (isopropyl alcohol).",
       "Nếu sản xuất 1000 lọ kem (100 mL/lọ, khối lượng riêng 0,85 g/mL) với nồng độ 3% isopropyl myristate, thì tổng khối lượng ester cần dùng là 2,55 kg.",
@@ -344,12 +344,12 @@ Biết hiệu suất cả quá trình là 75%.`,
     question_number: 24,
     question_type: "short_answer",
     prompt:
-      "Các chất X, Y là các hợp chất hữu cơ (đều chứa nguyên tố oxygen trong phân tử) thỏa mãn sơ đồ trong file gốc. Biết Y là hợp chất ở trạng thái rắn ở điều kiện thường. Phân tử khối của Y là bao nhiêu?",
+      "Các chất X, Y là các hợp chất hữu cơ (đều chứa nguyên tố oxygen trong phân tử) thỏa mãn sơ đồ như hình. Biết Y là hợp chất ở trạng thái rắn ở điều kiện thường. Phân tử khối của Y là bao nhiêu?",
     options: [],
     correct_answer: "112",
     points: 0.5,
     needs_review: true,
-    explanation: "Hướng dẫn giải trong file ghi đáp án 112. Cần rà sơ đồ phản ứng trong file gốc.",
+    explanation: "Hướng dẫn giải ghi đáp án 112.",
     sort_order: 24
   },
   {
@@ -362,7 +362,7 @@ Biết hiệu suất cả quá trình là 75%.`,
     correct_answer: "1",
     points: 0.5,
     needs_review: true,
-    explanation: "Hướng dẫn giải trong file ghi đáp án 1. Cần rà công thức cấu tạo trong file gốc.",
+    explanation: "Hướng dẫn giải ghi đáp án 1.",
     sort_order: 25
   },
   {
@@ -370,12 +370,12 @@ Biết hiệu suất cả quá trình là 75%.`,
     question_number: 26,
     question_type: "short_answer",
     prompt:
-      "Trong một đề tài khôi phục nước trên sao hỏa của NASA. Tiến hành sấy các mẫu Iron(II) sulfate heptahydrate (FeSO4.7H2O) với độ tinh khiết 99,99% với các khoảng nhiệt độ tăng dần, người ta xử lý số liệu độ giảm khối lượng của chất rắn thu được đồ thị như trong file gốc. Giá trị của y là bao nhiêu?",
+      "Trong một đề tài khôi phục nước trên sao hỏa của NASA. Tiến hành sấy các mẫu Iron(II) sulfate heptahydrate (FeSO4.7H2O) với độ tinh khiết 99,99% với các khoảng nhiệt độ tăng dần, người ta xử lý số liệu độ giảm khối lượng của chất rắn thu được đồ thị như hình. Giá trị của y là bao nhiêu?",
     options: [],
     correct_answer: "1",
     points: 0.5,
     needs_review: true,
-    explanation: "Hướng dẫn giải trong file ghi đáp án 1. Cần rà đồ thị trong file gốc.",
+    explanation: "Hướng dẫn giải ghi đáp án 1.",
     sort_order: 26
   },
   {
@@ -383,12 +383,12 @@ Biết hiệu suất cả quá trình là 75%.`,
     question_number: 27,
     question_type: "short_answer",
     prompt:
-      "Cho các vật liệu polymer thuộc loại chất dẻo mô tả như hình trong file gốc. Các polymer này có thể tái chế được. Các nhận định: (1) Sáu polymer trên đều là polymer nhiệt dẻo. (2) Trong 6 polymer trên, có 4 polymer tạo từ các monomer là hydrocarbon. (3) Nhựa số 3 (PVC) là loại polymer an toàn nhất để dùng làm màng bọc thực phẩm và có thể đốt cháy tại nhà để xử lý rác thải. (4) Monomer dùng để tổng hợp HDPE, LDPE là CH2=CH2. Sắp xếp các nhận định đúng theo thứ tự tăng dần.",
+      "Cho các vật liệu polymer thuộc loại chất dẻo mô tả như hình. Các polymer này có thể tái chế được. Các nhận định: (1) Sáu polymer trên đều là polymer nhiệt dẻo. (2) Trong 6 polymer trên, có 4 polymer tạo từ các monomer là hydrocarbon. (3) Nhựa số 3 (PVC) là loại polymer an toàn nhất để dùng làm màng bọc thực phẩm và có thể đốt cháy tại nhà để xử lý rác thải. (4) Monomer dùng để tổng hợp HDPE, LDPE là CH2=CH2. Sắp xếp các nhận định đúng theo thứ tự tăng dần.",
     options: [],
     correct_answer: "124",
     points: 0.5,
     needs_review: true,
-    explanation: "Hướng dẫn giải trong file ghi đáp án 124. Cần rà hình polymer trong file gốc.",
+    explanation: "Hướng dẫn giải ghi đáp án 124.",
     sort_order: 27
   },
   {
@@ -429,12 +429,12 @@ const hungYenQuestions: SampleQuestion[] = [
   { section: "Phần I", question_number: 16, question_type: "single_choice", prompt: "Tính chất vật lý chung của chất béo là", options: choice("Dễ tan trong nước và nhẹ hơn nước", "Dễ tan trong nước và nặng hơn nước", "Ít tan trong nước và nhẹ hơn nước", "Ít tan trong nước và nặng hơn nước"), correct_answer: null, points: 0.25, sort_order: 16 },
   { section: "Phần I", question_number: 17, question_type: "single_choice", prompt: "Chất nào sau đây có khả năng tham gia phản ứng trùng hợp tạo thành polymer?", options: choice("CH3-CH3", "CH3-CH2-OH", "CH2=CH2", "CH3-COOH"), correct_answer: null, points: 0.25, sort_order: 17 },
   { section: "Phần I", question_number: 18, question_type: "single_choice", prompt: "Trong các chất sau đây, chất nào có nhiệt độ sôi cao nhất?", options: choice("CH3CHO", "CH3COOH", "CH3CH2OH", "CH3COOC2H5"), correct_answer: null, points: 0.25, sort_order: 18 },
-  { section: "Phần II", question_number: 19, question_type: "true_false", prompt: "Trong một loại pin cúc áo được sử dụng rộng rãi trong đồng hồ và các thiết bị xảy ra phản ứng:\nZn(s) + Ag2O(s) + 2OH-(aq) -> ZnO2(2-)(aq) + 2Ag(s) + H2O(l)\nCho biết các giá trị thế điện cực chuẩn và dữ kiện trong hình từ đề gốc. Pin chứa 0,49 gam kẽm và có khả năng chạy được cho đến khi 80% lượng kẽm được tiêu thụ ở cường độ dòng điện là 0,03 mA.", options: tfOptions("Thế điện cực chuẩn của pin là 1,558 V.", "Zn là điện cực âm, Ag2O là điện cực dương.", "Khi pin hoạt động, tại cathode xảy ra quá trình trong đề gốc.", "Thời gian pin có thể chạy được tối đa là 446,76 ngày."), correct_answer: null, points: 1, needs_review: true, sort_order: 19 },
-  { section: "Phần II", question_number: 20, question_type: "true_false", prompt: "Điều chế ethyl acetate trong phòng thí nghiệm theo các bước trong đề gốc. Phản ứng ester hóa có Kc = 4. Cho phổ IR của hai hợp chất hữu cơ trong phản ứng và bảng số sóng hấp thụ đặc trưng như hình từ đề gốc.", options: tfOptions("Phổ IR trong hình 1 là của C2H5OH, hình 2 là của CH3COOH.", "Sulfuric acid đặc vừa là chất xúc tác, vừa có tác dụng hút nước, làm tăng hiệu suất tạo ester.", "Ban đầu, nếu cho 0,625 mol acetic acid tác dụng với 1 mol ethanol thì khi đạt đến trạng thái cân bằng, hiệu suất phản ứng ester hóa là 75%.", "Dung dịch NaCl bão hòa giúp ester tạo thành tách lớp nổi lên trên tốt hơn."), correct_answer: null, points: 1, needs_review: true, sort_order: 20 },
-  { section: "Phần II", question_number: 21, question_type: "true_false", prompt: "Tơ nylon-6,6 là loại tơ có tính dai, bền, mềm mại, óng mượt, ít thấm nước, giặt mau khô và được sử dụng để dệt vải may mặc, làm dây dù, đan lưới. Tơ nylon-6,6 được tổng hợp theo phương trình hóa học trong đề gốc.", options: tfOptions("Tơ nylon-6,6 được điều chế từ hexamethylenediamine và adipic acid.", "Phản ứng tổng hợp tơ nylon-6,6 thuộc loại phản ứng trùng hợp.", "Tơ nylon-6,6 thường được dùng để dệt vải may mặc, bện dây dù, đan lưới do có tính dai và bền.", "Tơ nylon-6,6 và tơ tằm đều kém bền trong môi trường kiềm nóng."), correct_answer: null, points: 1, needs_review: true, sort_order: 21 },
+  { section: "Phần II", question_number: 19, question_type: "true_false", prompt: "Trong một loại pin cúc áo được sử dụng rộng rãi trong đồng hồ và các thiết bị xảy ra phản ứng:\nZn(s) + Ag2O(s) + 2OH-(aq) -> ZnO2(2-)(aq) + 2Ag(s) + H2O(l)\nCho biết các giá trị thế điện cực chuẩn:\nZnO2(2-) + 2H2O + 2e ⇌ Zn + 4OH-, E° = -1,216 V\nAg2O + H2O + 2e ⇌ 2Ag + 2OH-, E° = +0,342 V\nPin chứa 0,49 gam kẽm và có khả năng chạy được cho đến khi 80% lượng kẽm được tiêu thụ ở cường độ dòng điện là 0,03 mA. Cho q = I.t = n(e).F; F = 96500 C/mol.", options: tfOptions("Thế điện cực chuẩn của pin là 1,558 V.", "Zn là điện cực âm, Ag2O là điện cực dương.", "Khi pin hoạt động, tại cathode xảy ra quá trình khử Ag2O + H2O + 2e -> 2Ag + 2OH-.", "Thời gian pin có thể chạy được tối đa là 446,76 ngày."), correct_answer: null, points: 1, needs_review: true, sort_order: 19 },
+  { section: "Phần II", question_number: 20, question_type: "true_false", prompt: "Điều chế ethyl acetate trong phòng thí nghiệm được tiến hành như sau:\n- Bước 1: Cho khoảng 5 mL ethanol và 5 mL acetic acid tuyệt đối vào ống nghiệm, lắc đều hỗn hợp.\n- Bước 2: Thêm khoảng 2 mL dung dịch H2SO4 đặc, lắc nhẹ để các chất trộn đều với nhau.\n- Bước 3: Đặt ống nghiệm vào cốc nước nóng khoảng 60°C - 70°C trong khoảng 5 phút, thỉnh thoảng lắc đều hỗn hợp. Sau đó lấy ống nghiệm ra khỏi cốc nước nóng, để nguội hỗn hợp rồi rót sang ống nghiệm khác chứa 10 mL dung dịch muối ăn bão hòa thì thấy chất lỏng trong ống nghiệm tách thành hai lớp, lớp trên có mùi thơm đặc trưng.\nPhản ứng xảy ra trong thí nghiệm: CH3COOH(l) + C2H5OH(l) ⇌ CH3COOC2H5(l) + H2O(l), Kc = 4.\nCho phổ IR của hai hợp chất hữu cơ trong phản ứng và bảng số sóng hấp thụ đặc trưng như hình.", options: tfOptions("Phổ IR trong hình 1 là của C2H5OH, hình 2 là của CH3COOH.", "Sulfuric acid đặc vừa là chất xúc tác, vừa có tác dụng hút nước, làm tăng hiệu suất tạo ester.", "Ban đầu, nếu cho 0,625 mol acetic acid tác dụng với 1 mol ethanol thì khi đạt đến trạng thái cân bằng, hiệu suất phản ứng ester hóa là 75%.", "Dung dịch NaCl bão hòa giúp ester tạo thành tách lớp nổi lên trên tốt hơn."), correct_answer: null, points: 1, needs_review: true, sort_order: 20 },
+  { section: "Phần II", question_number: 21, question_type: "true_false", prompt: "Tơ nylon-6,6 là loại tơ có tính dai, bền, mềm mại, óng mượt, ít thấm nước, giặt mau khô và được sử dụng để dệt vải may mặc, làm dây dù, đan lưới. Tơ nylon-6,6 được tổng hợp theo phương trình hóa học như hình.", options: tfOptions("Tơ nylon-6,6 được điều chế từ hexamethylenediamine và adipic acid.", "Phản ứng tổng hợp tơ nylon-6,6 thuộc loại phản ứng trùng hợp.", "Tơ nylon-6,6 thường được dùng để dệt vải may mặc, bện dây dù, đan lưới do có tính dai và bền.", "Tơ nylon-6,6 và tơ tằm đều kém bền trong môi trường kiềm nóng."), correct_answer: null, points: 1, needs_review: true, sort_order: 21 },
   { section: "Phần II", question_number: 22, question_type: "true_false", prompt: "Amine thơm X (C6H7N), ở điều kiện thường là chất lỏng, dễ bị oxi hóa khi để ngoài không khí.", options: tfOptions("X làm chuyển màu quỳ tím sang màu xanh.", "X tác dụng với nước bromine tạo kết tủa trắng.", "X tác dụng với nitrous acid ở nhiệt độ thấp (0-5°C) tạo thành muối diazonium, là phản ứng quan trọng trong sản xuất thuốc nhuộm azo.", "Tên thay thế của X là phenylamine."), correct_answer: null, points: 1, sort_order: 22 },
   { section: "Phần III", question_number: 23, question_type: "short_answer", prompt: "Indigo dye (hình 1) là một loại thuốc nhuộm màu xanh lam đậm có nguồn gốc tự nhiên từ một số loài thực vật, hoặc có thể được sản xuất tổng hợp. Phần trăm khối lượng của nguyên tố nitrogen trong phân tử Indigo dye là bao nhiêu phần trăm? Làm tròn đến hàng phần mười.", options: [], correct_answer: null, points: 0.5, needs_review: true, sort_order: 23 },
-  { section: "Phần III", question_number: 24, question_type: "short_answer", prompt: "Poly(vinyl chloride) (PVC) được điều chế từ khí thiên nhiên theo sơ đồ trong đề gốc. Cần bao nhiêu m3 khí thiên nhiên (đo ở điều kiện chuẩn: 25°C, 1 bar) để điều chế được 450 kg PVC? Biết khí thiên nhiên chứa 92% methane về thể tích, còn lại là tạp chất trơ. Làm tròn đến hàng đơn vị.", options: [], correct_answer: null, points: 0.5, needs_review: true, sort_order: 24 },
+  { section: "Phần III", question_number: 24, question_type: "short_answer", prompt: "Poly(vinyl chloride) (PVC) được điều chế từ khí thiên nhiên theo sơ đồ như hình. Cần bao nhiêu m3 khí thiên nhiên (đo ở điều kiện chuẩn: 25°C, 1 bar) để điều chế được 450 kg PVC? Biết khí thiên nhiên chứa 92% methane về thể tích, còn lại là tạp chất trơ. Làm tròn đến hàng đơn vị.", options: [], correct_answer: null, points: 0.5, needs_review: true, sort_order: 24 },
   { section: "Phần III", question_number: 25, question_type: "short_answer", prompt: "Cho các cặp oxi hoá - khử và giá trị thế điện cực chuẩn tương ứng:\nCặp oxi hoá khử | Cu2+/Cu | Fe3+/Fe2+ | Ag+/Ag\nThế điện cực chuẩn (V) | +0,34 | +0,771 | +0,799\nCho các phát biểu sau ở điều kiện chuẩn:\n(1) Ion Cu2+ có tính oxi hoá mạnh hơn ion Fe3+.\n(2) Dãy sắp xếp theo chiều tăng dần tính khử: Ag, Cu, Fe2+.\n(3) Ion Fe2+ khử được ion Ag+ thành Ag kim loại.\n(4) Ion Fe3+ và ion Ag+ đều oxi hoá được Cu thành ion Cu2+.\nViết số thứ tự của các phát biểu đúng theo thứ tự tăng dần từ trái sang phải.", options: [], correct_answer: null, points: 0.5, sort_order: 25 },
   { section: "Phần III", question_number: 26, question_type: "short_answer", prompt: "Cho các ester sau: C6H5COOC6H5 (phenyl benzoate); CH3COO-[CH2]2-OOCCH2CH3; CH3COOC6H5 (phenyl acetate); CH3OOC-COOCH3; HCOO-CH2-C6H5. Số ester khi tác dụng với dung dịch NaOH dư thu được alcohol là bao nhiêu?", options: [], correct_answer: null, points: 0.5, sort_order: 26 },
   { section: "Phần III", question_number: 27, question_type: "short_answer", prompt: "Cho các phát biểu sau:\n(1) Mỡ lợn hoặc dầu dừa có thể dùng làm nguyên liệu để tái chế thành xà phòng.\n(2) Nước ép quả nho chín có khả năng tham gia phản ứng với thuốc thử Tollens.\n(3) Trong phân tử peptide mạch hở Gly-Ala-Gly, có 3 nguyên tử oxygen.\n(4) Tơ nylon-6,6 và tơ nitron (hay olon) đều thuộc loại tơ polyamide.\n(5) Aniline (C6H5NH2) phản ứng với nước bromine tạo thành kết tủa trắng.\n(6) Cao su lưu hóa có cấu trúc mạng lưới không gian nên đàn hồi tốt hơn cao su thường.\nLiệt kê các phát biểu đúng theo thứ tự tăng dần.", options: [], correct_answer: null, points: 0.5, sort_order: 27 },
@@ -444,7 +444,7 @@ export const sampleGiupCyExams: SampleExam[] = [
   {
     title: "17.05.01",
     description:
-      "Đề được dựng lại đủ 28 câu từ file Word gốc. Bản dữ liệu 2026-05-16 đã tách phần câu hỏi khỏi hướng dẫn giải.",
+      "Đề được dựng lại đủ 28 câu từ nguồn Word. Bản dữ liệu 2026-05-17 đã bổ sung crop hình/sơ đồ cho cụm câu phụ thuộc ảnh và bỏ tham chiếu mơ hồ.",
     subject: "Hóa học",
     duration_minutes: 50,
     slugSuffix: "hung-yen-hki-hoa-12-2026",
@@ -455,7 +455,7 @@ export const sampleGiupCyExams: SampleExam[] = [
   {
     title: "17.05.02",
     description:
-      "Đề Cẩm Phả được dựng đủ 28 câu. Bản dữ liệu 2026-05-16 đã tách phần câu hỏi khỏi hướng dẫn giải và dùng crop riêng cho hình/sơ đồ.",
+      "Đề Cẩm Phả được dựng đủ 28 câu. Bản dữ liệu 2026-05-17 đã dùng ảnh trích từ nguồn Word cho các câu phụ thuộc hình/sơ đồ và bỏ tham chiếu mơ hồ.",
     subject: "Hóa học",
     duration_minutes: 50,
     slugSuffix: "cam-pha-lan-1-hoa-2026",
