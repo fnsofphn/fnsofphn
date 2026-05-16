@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { ChevronDown, Download, Save } from "lucide-react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, Download, RefreshCw, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -115,6 +116,7 @@ function formatScore(attempt: GiupCyExamAttemptRow) {
 }
 
 export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
+  const router = useRouter();
   const [answers, setAnswers] = useState(() =>
     Object.fromEntries(questions.map((question) => [question.id, answerText(question.correct_answer)]))
   );
@@ -127,6 +129,14 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
   const pdfUrl = getExamPdfUrl(exam);
 
   const autoGradeCount = useMemo(() => questions.filter((question) => question.correct_answer !== null && question.correct_answer !== "").length, [questions]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") router.refresh();
+    }, 10000);
+
+    return () => window.clearInterval(interval);
+  }, [router]);
 
   function saveAnswer(question: GiupCyExamQuestionRow) {
     setPendingId(question.id);
@@ -190,6 +200,10 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
             <h2 className="text-2xl font-bold text-text-primary">Kết quả làm bài</h2>
             <p className="mt-1 text-sm text-text-secondary">{exam.title}</p>
           </div>
+          <Button type="button" variant="ghost" onClick={() => router.refresh()} className="print:hidden">
+            <RefreshCw className="size-4" />
+            Làm mới
+          </Button>
           <Button type="button" variant="secondary" onClick={exportPdf} className="print:hidden">
             <Download className="size-4" />
             Xuất PDF

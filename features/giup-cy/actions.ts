@@ -183,6 +183,9 @@ export async function submitExamAttempt(input: unknown): Promise<ActionResult> {
     });
 
   if (error) return { ok: false, message: error.message };
+  revalidatePath("/app/giup-cy");
+  revalidatePath(`/app/giup-cy/${parsed.data.examId}`);
+
   return {
     ok: true,
     message: "Đã nộp bài.",
