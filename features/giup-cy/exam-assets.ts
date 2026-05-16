@@ -12,12 +12,14 @@ export type ExamDocumentAsset = {
   pages: ExamPageAsset[];
 };
 
+const ASSET_VERSION = "student-clean-20260516";
+
 function buildPages(basePath: string, count: number, width: number, height: number, padded = true) {
   return Array.from({ length: count }, (_, index) => {
     const pageNumber = index + 1;
     return {
       pageNumber,
-      url: `${basePath}/pages/page-${padded ? String(pageNumber).padStart(2, "0") : String(pageNumber)}.png`,
+      url: `${basePath}/pages/page-${padded ? String(pageNumber).padStart(2, "0") : String(pageNumber)}.png?v=${ASSET_VERSION}`,
       width,
       height
     };
@@ -29,13 +31,16 @@ export function getExamDocumentAsset(exam: Pick<GiupCyExamRow, "slug" | "source_
 
   if (source.includes("cam-pha")) {
     return {
-      pdfUrl: "/exam-assets/cam-pha-lan-1/original.pdf",
+      pdfUrl: `/exam-assets/cam-pha-lan-1/original.pdf?v=${ASSET_VERSION}`,
       pages: buildPages("/exam-assets/cam-pha-lan-1", 15, 1445, 1870)
     };
   }
 
   if (source.includes("hung-yen")) {
-    return null;
+    return {
+      pdfUrl: `/exam-assets/hung-yen-hki/original.pdf?v=${ASSET_VERSION}`,
+      pages: buildPages("/exam-assets/hung-yen-hki", 4, 1445, 1870, false)
+    };
   }
 
   return null;
