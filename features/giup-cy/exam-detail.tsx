@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PremiumCard } from "@/components/shared/premium-card";
 import { updateQuestionAnswer } from "@/features/giup-cy/actions";
+import { getExamPdfUrl } from "@/features/giup-cy/exam-assets";
 import type { GiupCyExamAttemptRow, GiupCyExamQuestionRow, GiupCyExamRow, Json } from "@/types/database";
 
 type Props = {
@@ -37,6 +38,7 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
   );
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const pdfUrl = getExamPdfUrl(exam);
 
   const autoGradeCount = useMemo(() => questions.filter((question) => question.correct_answer !== null && question.correct_answer !== "").length, [questions]);
 
@@ -84,6 +86,17 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
           <p className="mt-2 text-lg font-bold text-text-primary">{exam.is_active ? "Đang mở" : "Đang tắt"}</p>
         </PremiumCard>
       </section>
+
+      {pdfUrl ? (
+        <PremiumCard hover={false} className="print:hidden">
+          <h2 className="mb-5 text-2xl font-bold text-text-primary">Bản đề gốc</h2>
+          <iframe
+            title={`Tài liệu gốc - ${exam.title}`}
+            src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
+            className="h-[78vh] w-full rounded-2xl border border-border-soft bg-white"
+          />
+        </PremiumCard>
+      ) : null}
 
       <PremiumCard hover={false} className="print:shadow-none">
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

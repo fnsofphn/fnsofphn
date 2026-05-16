@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PremiumCard } from "@/components/shared/premium-card";
 import { submitExamAttempt } from "@/features/giup-cy/actions";
+import { getExamPdfUrl } from "@/features/giup-cy/exam-assets";
 import type { GiupCyExamQuestionRow, GiupCyExamRow, Json } from "@/types/database";
 
 type Props = {
@@ -38,6 +39,8 @@ export function ExamTaker({ exam, questions }: Props) {
   const [answers, setAnswers] = useState<Record<string, Json>>({});
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [isPending, startTransition] = useTransition();
+  const pdfUrl = getExamPdfUrl(exam);
+  const useOriginalDocument = Boolean(pdfUrl);
 
   function setAnswer(questionId: string, value: Json) {
     setAnswers((current) => ({ ...current, [questionId]: value }));
@@ -88,7 +91,7 @@ export function ExamTaker({ exam, questions }: Props) {
   }
 
   return (
-    <form className="mx-auto max-w-5xl space-y-5" onSubmit={submit}>
+    <form className="mx-auto max-w-7xl space-y-5" onSubmit={submit}>
       <PremiumCard hover={false}>
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -105,15 +108,81 @@ export function ExamTaker({ exam, questions }: Props) {
         </div>
       </PremiumCard>
 
-      {questions.map((question) => (
-        <PremiumCard key={question.id} hover={false} className="rounded-2xl">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <Badge variant="neutral">{question.section}</Badge>
-            <Badge>Câu {question.question_number}</Badge>
-          </div>
-          <p className="whitespace-pre-line text-base leading-7 text-text-primary">{question.prompt}</p>
+      {pdfUrl ? (
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+          <PremiumCard hover={false} className="rounded-2xl p-3">
+            <iframe
+              title={`Tài liệu gốc - ${exam.title}`}
+              src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
+              className="h-[78vh] w-full rounded-2xl border border-border-soft bg-white"
+            />
+          </PremiumCard>
 
-          {question.question_type === "single_choice" ? (
+          <div className="space-y-4">
+            {questions.map((question) => (
+              <PremiumCard key={question.id} hover={false} className="rounded-2xl p-4">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <Badge variant="neutral">{question.section}</Badge>
+                  <Badge>Câu {question.question_number}</Badge>
+                </div>
+
+                {question.question_type === "single_choice" ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {["A", "B", "C", "D"].map((option) => (
+                      <label key={option} className="flex cursor-pointer items-center gap-2 rounded-2xl border border-border-soft bg-white/65 px-3 py-2 text-sm font-semibold text-text-primary">
+                        <input
+                          type="radio"
+                          name={question.id}
+                          value={option}
+                          checked={answers[question.id] === option}
+                          onChange={() => setAnswer(question.id, option)}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                ) : null}
+
+                {question.question_type === "true_false" ? (
+                  <div className="space-y-2">
+                    {["a", "b", "c", "d"].map((key) => {
+                      const current = (answers[question.id] ?? {}) as Record<string, boolean>;
+                      return (
+                        <div key={key} className="grid grid-cols-[28px_1fr_1fr] items-center gap-2 rounded-2xl border border-border-soft bg-white/65 px-3 py-2 text-sm">
+                          <span className="font-bold text-text-primary">{key})</span>
+                          <label className="flex items-center gap-2 font-semibold text-text-secondary">
+                            <input type="radio" name={`${question.id}-${key}`} checked={current[key] === true} onChange={() => setAnswer(question.id, { ...current, [key]: true })} />
+                            Đúng
+                          </label>
+                          <label className="flex items-center gap-2 font-semibold text-text-secondary">
+                            <input type="radio" name={`${question.id}-${key}`} checked={current[key] === false} onChange={() => setAnswer(question.id, { ...current, [key]: false })} />
+                            Sai
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+
+                {question.question_type === "short_answer" ? (
+                  <Input value={String(answers[question.id] ?? "")} onChange={(event) => setAnswer(question.id, event.target.value)} placeholder="Nhập đáp án" />
+                ) : null}
+              </PremiumCard>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {!useOriginalDocument
+        ? questions.map((question) => (
+            <PremiumCard key={question.id} hover={false} className="rounded-2xl">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <Badge variant="neutral">{question.section}</Badge>
+                <Badge>Câu {question.question_number}</Badge>
+              </div>
+              <p className="whitespace-pre-line text-base leading-7 text-text-primary">{question.prompt}</p>
+
+              {question.question_type === "single_choice" ? (
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {optionsFor(question).map((option) => (
                 <label key={option.key} className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border-soft bg-white/65 p-4 text-sm text-text-primary">
@@ -130,9 +199,9 @@ export function ExamTaker({ exam, questions }: Props) {
                 </label>
               ))}
             </div>
-          ) : null}
+              ) : null}
 
-          {question.question_type === "true_false" ? (
+              {question.question_type === "true_false" ? (
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {optionsFor(question).map((option) => {
                 const current = (answers[question.id] ?? {}) as Record<string, boolean>;
@@ -155,13 +224,14 @@ export function ExamTaker({ exam, questions }: Props) {
                 );
               })}
             </div>
-          ) : null}
+              ) : null}
 
-          {question.question_type === "short_answer" ? (
-            <Textarea className="mt-4" rows={3} value={String(answers[question.id] ?? "")} onChange={(event) => setAnswer(question.id, event.target.value)} placeholder="Nhập đáp án ngắn" />
-          ) : null}
-        </PremiumCard>
-      ))}
+              {question.question_type === "short_answer" ? (
+                <Textarea className="mt-4" rows={3} value={String(answers[question.id] ?? "")} onChange={(event) => setAnswer(question.id, event.target.value)} placeholder="Nhập đáp án ngắn" />
+              ) : null}
+            </PremiumCard>
+          ))
+        : null}
 
       <div className="sticky bottom-4 z-20 flex justify-end">
         <Button type="submit" disabled={isPending}>
