@@ -56,7 +56,57 @@ function resultLabel(detail: AttemptAnswerDetail) {
 }
 
 function questionForDetail(questions: GiupCyExamQuestionRow[], detail: AttemptAnswerDetail) {
-  return questions.find((question) => question.id === detail.questionId);
+  return questions.find((question) => question.id === detail.questionId) ?? questions.find((question) => question.question_number === detail.questionNumber);
+}
+
+function AnswerReviewBlock({
+  detail,
+  question
+}: {
+  detail: AttemptAnswerDetail;
+  question: GiupCyExamQuestionRow | undefined;
+}) {
+  return (
+    <article className="rounded-2xl border border-border-soft bg-white/72 p-4 print:break-inside-avoid print:border-slate-300 print:bg-white">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <Badge variant="neutral">{question?.section ?? "Câu hỏi"}</Badge>
+        <Badge>Câu {detail.questionNumber}</Badge>
+        <Badge variant={detail.isCorrect === null ? "gold" : detail.isCorrect ? "cyan" : "rose"}>{resultLabel(detail)}</Badge>
+        <Badge variant="neutral">{question?.question_type ?? "unknown"}</Badge>
+        <Badge variant="neutral">
+          {detail.earnedPoints}/{detail.points} điểm
+        </Badge>
+      </div>
+
+      {question?.prompt ? (
+        <div className="mb-4">
+          <p className="mb-1 text-xs font-semibold uppercase text-text-secondary">Nội dung câu hỏi</p>
+          <p className="whitespace-pre-line rounded-2xl border border-border-soft bg-slate-50/70 px-4 py-3 text-sm leading-6 text-text-primary print:bg-white">
+            {question.prompt}
+          </p>
+        </div>
+      ) : (
+        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+          Chưa tìm thấy nội dung câu hỏi tương ứng trong dữ liệu hiện tại.
+        </div>
+      )}
+
+      <div className="grid gap-3">
+        <div>
+          <p className="mb-1 text-xs font-semibold uppercase text-text-secondary">Đáp án đúng</p>
+          <div className="rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-3 text-sm font-semibold text-cyan-900 print:bg-white">
+            {formatAnswer(detail.correctAnswer)}
+          </div>
+        </div>
+        <div>
+          <p className="mb-1 text-xs font-semibold uppercase text-text-secondary">Đáp án học sinh chọn</p>
+          <div className="rounded-2xl border border-border-soft bg-white px-4 py-3 text-sm font-semibold text-text-primary">
+            {formatAnswer(detail.answer)}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 function formatScore(attempt: GiupCyExamAttemptRow) {
@@ -175,7 +225,7 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
         </div>
       </PremiumCard>
 
-      <PremiumCard hover={false} className="print:shadow-none">
+      <PremiumCard hover={false} className="exam-screen-only">
         <div className="mb-5">
           <h2 className="text-2xl font-bold text-text-primary">Đáp án học sinh</h2>
           <p className="mt-1 text-sm text-text-secondary">Bấm vào từng học sinh để xem đáp án đúng và đáp án đã chọn theo từng câu.</p>
@@ -209,43 +259,7 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
                 {open ? (
                   <div className="space-y-4 border-t border-border-soft p-4">
                     {details.map((detail) => (
-                      <article key={detail.questionId} className="rounded-2xl border border-border-soft bg-white/72 p-4">
-                        {(() => {
-                          const question = questionForDetail(questions, detail);
-                          return (
-                            <>
-                              <div className="mb-3 flex flex-wrap items-center gap-2">
-                                <Badge variant="neutral">{question?.section ?? "Câu hỏi"}</Badge>
-                                <Badge>Câu {detail.questionNumber}</Badge>
-                                <Badge variant={detail.isCorrect === null ? "gold" : detail.isCorrect ? "cyan" : "rose"}>{resultLabel(detail)}</Badge>
-                                <Badge variant="neutral">{question?.question_type ?? "unknown"}</Badge>
-                                <Badge variant="neutral">
-                                  {detail.earnedPoints}/{detail.points} điểm
-                                </Badge>
-                              </div>
-
-                              {question?.prompt ? (
-                                <p className="mb-4 whitespace-pre-line text-sm leading-6 text-text-primary">{question.prompt}</p>
-                              ) : null}
-                            </>
-                          );
-                        })()}
-
-                        <div className="grid gap-3">
-                          <div>
-                            <p className="mb-1 text-xs font-semibold uppercase text-text-secondary">Đáp án đúng</p>
-                            <div className="rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-3 text-sm font-semibold text-cyan-900">
-                              {formatAnswer(detail.correctAnswer)}
-                            </div>
-                          </div>
-                          <div>
-                            <p className="mb-1 text-xs font-semibold uppercase text-text-secondary">Đáp án học sinh chọn</p>
-                            <div className="rounded-2xl border border-border-soft bg-white px-4 py-3 text-sm font-semibold text-text-primary">
-                              {formatAnswer(detail.answer)}
-                            </div>
-                          </div>
-                        </div>
-                      </article>
+                      <AnswerReviewBlock key={detail.questionId} detail={detail} question={questionForDetail(questions, detail)} />
                     ))}
                   </div>
                 ) : null}
@@ -255,6 +269,50 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
           {!attempts.length ? <p className="text-sm text-text-secondary">Chưa có bài làm để hiển thị chi tiết.</p> : null}
         </div>
       </PremiumCard>
+
+      <section className="exam-print-report hidden">
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-text-secondary">Life & Work OS / Giúp Cy</p>
+          <h1 className="mt-2 text-2xl font-bold text-text-primary">{exam.title}</h1>
+          <p className="mt-2 text-sm text-text-secondary">Báo cáo kết quả chi tiết từng câu</p>
+        </div>
+
+        <div className="space-y-8">
+          {attempts.map((attempt) => {
+            const details = parseAttemptDetails(attempt);
+            return (
+              <section key={attempt.id} className="break-inside-avoid rounded-2xl border border-slate-300 bg-white p-4">
+                <div className="mb-5 grid gap-3 md:grid-cols-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-text-secondary">Học sinh</p>
+                    <p className="mt-1 font-bold text-text-primary">{attempt.student_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-text-secondary">Điểm</p>
+                    <p className="mt-1 font-bold text-text-primary">{formatScore(attempt)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-text-secondary">Đúng / đã chấm</p>
+                    <p className="mt-1 font-bold text-text-primary">
+                      {attempt.correct_count}/{attempt.graded_count}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-text-secondary">Thời gian nộp</p>
+                    <p className="mt-1 font-bold text-text-primary">{new Date(attempt.submitted_at).toLocaleString("vi-VN")}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {details.map((detail) => (
+                    <AnswerReviewBlock key={`${attempt.id}-${detail.questionId}`} detail={detail} question={questionForDetail(questions, detail)} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      </section>
 
       <PremiumCard hover={false} className="print:hidden">
         <h2 className="text-2xl font-bold text-text-primary">Đáp án và câu hỏi</h2>
