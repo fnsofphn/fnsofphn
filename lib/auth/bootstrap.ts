@@ -2,10 +2,57 @@ import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { defaultEnergyActivities, defaultProfile } from "@/lib/constants/profile";
 import type { AuthUser } from "@/lib/auth/guards";
+import { sampleGiupCyExams } from "@/features/giup-cy/sample-exams";
 
 export async function ensureUserBootstrap(user: AuthUser) {
   const supabase = await createClient();
   const today = format(new Date(), "yyyy-MM-dd");
+  const seedGiupCyExams = async () => {
+    const { count } = await supabase
+      .from("giup_cy_exams")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    if (count) return;
+
+    for (const sampleExam of sampleGiupCyExams) {
+      const slug = `${sampleExam.slugSuffix}-${user.id.slice(0, 8)}`;
+      const { data: exam } = await supabase
+        .from("giup_cy_exams")
+        .insert({
+          user_id: user.id,
+          title: sampleExam.title,
+          description: sampleExam.description,
+          subject: sampleExam.subject,
+          duration_minutes: sampleExam.duration_minutes,
+          slug,
+          source_file_name: sampleExam.source_file_name,
+          is_active: sampleExam.is_active
+        })
+        .select("id")
+        .single();
+
+      if (!exam) continue;
+
+      await supabase.from("giup_cy_exam_questions").insert(
+        sampleExam.questions.map((question) => ({
+          exam_id: exam.id,
+          section: question.section,
+          question_number: question.question_number,
+          question_type: question.question_type,
+          prompt: question.prompt,
+          options: question.options,
+          correct_answer: question.correct_answer,
+          points: question.points,
+          explanation: question.explanation ?? null,
+          needs_review: question.needs_review ?? false,
+          sort_order: question.sort_order
+        }))
+      );
+    }
+  };
+
+  await seedGiupCyExams();
 
   const { data: profile } = await supabase
     .from("profiles")

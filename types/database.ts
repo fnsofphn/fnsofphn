@@ -15,6 +15,7 @@ export type TradingBias = "bullish" | "bearish" | "neutral";
 export type TradingIdeaStatus = "researching" | "ready" | "testing" | "archived";
 export type TradingBacktestVerdict = "promising" | "observe" | "reject";
 export type ProjectAccountStatus = "active" | "paused" | "archived";
+export type GiupCyQuestionType = "single_choice" | "true_false" | "short_answer";
 
 type BaseRow = {
   id: string;
@@ -213,6 +214,49 @@ export type ProjectAccountRow = BaseRow & {
   notes: string | null;
 };
 
+export type GiupCyExamRow = BaseRow & {
+  title: string;
+  description: string | null;
+  subject: string;
+  duration_minutes: number;
+  slug: string;
+  source_file_name: string | null;
+  is_active: boolean;
+};
+
+export type GiupCyExamQuestionRow = {
+  id: string;
+  exam_id: string;
+  section: string;
+  question_number: number;
+  question_type: GiupCyQuestionType;
+  prompt: string;
+  options: Json;
+  correct_answer: Json;
+  points: number;
+  explanation: string | null;
+  needs_review: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GiupCyExamAttemptRow = {
+  id: string;
+  exam_id: string;
+  student_name: string;
+  answers: Json;
+  graded_details: Json;
+  score: number;
+  max_score: number;
+  correct_count: number;
+  graded_count: number;
+  total_count: number;
+  started_at: string;
+  submitted_at: string;
+  created_at: string;
+};
+
 type TableDefinition<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row;
   Insert: Insert;
@@ -242,6 +286,9 @@ export interface Database {
       trading_ideas: TableDefinition<TradingIdeaRow>;
       trading_backtests: TableDefinition<TradingBacktestRow>;
       project_accounts: TableDefinition<ProjectAccountRow>;
+      giup_cy_exams: TableDefinition<GiupCyExamRow>;
+      giup_cy_exam_questions: TableDefinition<GiupCyExamQuestionRow>;
+      giup_cy_exam_attempts: TableDefinition<GiupCyExamAttemptRow>;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
