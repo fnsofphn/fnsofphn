@@ -55,6 +55,10 @@ function resultLabel(detail: AttemptAnswerDetail) {
   return detail.isCorrect ? "Đúng" : "Sai";
 }
 
+function questionForDetail(questions: GiupCyExamQuestionRow[], detail: AttemptAnswerDetail) {
+  return questions.find((question) => question.id === detail.questionId);
+}
+
 function formatScore(attempt: GiupCyExamAttemptRow) {
   if (!attempt.max_score) return "Chưa có câu chấm tự động";
   return `${attempt.score}/${attempt.max_score}`;
@@ -206,17 +210,26 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
                   <div className="space-y-4 border-t border-border-soft p-4">
                     {details.map((detail) => (
                       <article key={detail.questionId} className="rounded-2xl border border-border-soft bg-white/72 p-4">
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <Badge>Câu {detail.questionNumber}</Badge>
-                          <Badge
-                            variant={detail.isCorrect === null ? "gold" : detail.isCorrect ? "cyan" : "rose"}
-                          >
-                            {resultLabel(detail)}
-                          </Badge>
-                          <Badge variant="neutral">
-                            {detail.earnedPoints}/{detail.points} điểm
-                          </Badge>
-                        </div>
+                        {(() => {
+                          const question = questionForDetail(questions, detail);
+                          return (
+                            <>
+                              <div className="mb-3 flex flex-wrap items-center gap-2">
+                                <Badge variant="neutral">{question?.section ?? "Câu hỏi"}</Badge>
+                                <Badge>Câu {detail.questionNumber}</Badge>
+                                <Badge variant={detail.isCorrect === null ? "gold" : detail.isCorrect ? "cyan" : "rose"}>{resultLabel(detail)}</Badge>
+                                <Badge variant="neutral">{question?.question_type ?? "unknown"}</Badge>
+                                <Badge variant="neutral">
+                                  {detail.earnedPoints}/{detail.points} điểm
+                                </Badge>
+                              </div>
+
+                              {question?.prompt ? (
+                                <p className="mb-4 whitespace-pre-line text-sm leading-6 text-text-primary">{question.prompt}</p>
+                              ) : null}
+                            </>
+                          );
+                        })()}
 
                         <div className="grid gap-3">
                           <div>
