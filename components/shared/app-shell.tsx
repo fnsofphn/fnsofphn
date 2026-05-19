@@ -36,6 +36,7 @@ type AppShellProps = {
     email: string | null;
   } | null;
   quickNotes: QuickNoteRow[];
+  giupCyOnly?: boolean;
 };
 
 const navItems = [
@@ -62,14 +63,15 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AppShell({ children, profile, quickNotes }: AppShellProps) {
+export function AppShell({ children, profile, quickNotes, giupCyOnly = false }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const visibleNavItems = giupCyOnly ? navItems.filter((item) => item.href === "/app/giup-cy") : navItems;
 
   useEffect(() => {
-    navItems.forEach((item) => router.prefetch(item.href));
-  }, [router]);
+    visibleNavItems.forEach((item) => router.prefetch(item.href));
+  }, [router, visibleNavItems]);
 
   const isNavigating = pendingHref !== null && !isActivePath(pathname, pendingHref);
 
@@ -88,7 +90,7 @@ export function AppShell({ children, profile, quickNotes }: AppShellProps) {
         </Link>
 
         <nav className="scrollbar-soft min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const active = isActivePath(pathname, item.href);
             return (
               <Link
@@ -153,10 +155,10 @@ export function AppShell({ children, profile, quickNotes }: AppShellProps) {
         ) : null}
         <div className={cn("transition duration-200", isNavigating && "opacity-45")}>{children}</div>
       </div>
-      <QuickNoteDock initialNotes={quickNotes} />
+      {giupCyOnly ? null : <QuickNoteDock initialNotes={quickNotes} />}
 
       <nav className="fixed bottom-3 left-3 right-3 z-40 grid grid-cols-5 gap-1 rounded-[24px] border border-border-soft bg-white/82 p-2 shadow-[0_22px_70px_rgba(15,23,42,0.15)] backdrop-blur-2xl lg:hidden">
-        {navItems.slice(0, 5).map((item) => {
+        {visibleNavItems.slice(0, 5).map((item) => {
           const active = isActivePath(pathname, item.href);
           return (
             <Link

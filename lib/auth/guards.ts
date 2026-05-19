@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isGiupCyOnlyEmail } from "@/lib/auth/access";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
@@ -37,6 +38,6 @@ export async function redirectIfAuthenticated() {
   const user = await getAuthenticatedUser();
 
   if (user) {
-    redirect("/app");
+    redirect(isGiupCyOnlyEmail(user.email) ? "/app/giup-cy" : "/app");
   }
 }

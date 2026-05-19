@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/shared/app-shell";
+import { isGiupCyOnlyEmail } from "@/lib/auth/access";
 import { ensureUserBootstrap } from "@/lib/auth/bootstrap";
 import { requireUser } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
@@ -25,5 +26,9 @@ export default async function ProtectedAppLayout({ children }: { children: React
     .order("updated_at", { ascending: false })
     .limit(8);
 
-  return <AppShell profile={profile} quickNotes={(quickNotes ?? []) as QuickNoteRow[]}>{children}</AppShell>;
+  return (
+    <AppShell profile={profile} quickNotes={(quickNotes ?? []) as QuickNoteRow[]} giupCyOnly={isGiupCyOnlyEmail(user.email)}>
+      {children}
+    </AppShell>
+  );
 }

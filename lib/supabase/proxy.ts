@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { isGiupCyOnlyEmail, isGiupCyPath } from "@/lib/auth/access";
 import { hasSupabaseEnv, getSupabaseEnv } from "@/lib/supabase/env";
 import type { Database } from "@/types/database";
 
@@ -24,7 +25,15 @@ export async function updateSession(request: NextRequest) {
     }
   });
 
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+  const email = typeof data?.claims?.email === "string" ? data.claims.email : null;
+
+  if (request.nextUrl.pathname.startsWith("/app") && isGiupCyOnlyEmail(email) && !isGiupCyPath(request.nextUrl.pathname)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/app/giup-cy";
+    redirectUrl.search = "";
+    return NextResponse.redirect(redirectUrl);
+  }
 
   return supabaseResponse;
 }
