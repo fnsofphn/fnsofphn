@@ -71,11 +71,20 @@ function readDraft(storageKey: string) {
 
 export function ExamTaker({ exam, questions }: Props) {
   const storageKey = `giup-cy:${exam.id}:draft`;
+  const resultKey = `giup-cy:${exam.id}:result`;
   const [studentName, setStudentName] = useState(() => readDraft(storageKey).studentName ?? "");
   const [answers, setAnswers] = useState<Record<string, Json>>(() => readDraft(storageKey).answers ?? {});
   const [marked, setMarked] = useState<Record<string, boolean>>(() => readDraft(storageKey).marked ?? {});
   const [currentQuestionId, setCurrentQuestionId] = useState(questions[0]?.id ?? "");
-  const [result, setResult] = useState<SubmitResult | null>(null);
+  const [result, setResult] = useState<(SubmitResult & { studentName: string }) | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(resultKey);
+      return raw ? (JSON.parse(raw) as SubmitResult & { studentName: string }) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isPending, startTransition] = useTransition();
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -142,13 +151,16 @@ export function ExamTaker({ exam, questions }: Props) {
 
       if (response.ok) {
         window.localStorage.removeItem(storageKey);
-        setResult({
+        const resultData = {
           score: response.score,
           maxScore: response.maxScore,
           correctCount: response.correctCount,
           gradedCount: response.gradedCount,
-          totalCount: response.totalCount
-        });
+          totalCount: response.totalCount,
+          studentName
+        };
+        window.localStorage.setItem(resultKey, JSON.stringify(resultData));
+        setResult(resultData);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -161,15 +173,28 @@ export function ExamTaker({ exam, questions }: Props) {
       <PremiumCard hover={false} className="mx-auto max-w-2xl">
         <h1 className="text-2xl font-bold text-text-primary">Đã nộp bài</h1>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          Bài làm của {studentName} đã được lưu. Giáo viên có thể xem điểm các câu đã có đáp án trong màn quản lý.
+          Bài làm của <strong>{result.studentName}</strong> đã được lưu. Giáo viên có thể xem điểm các câu đã có đáp án trong màn quản lý.
         </p>
         <div className="mt-6 rounded-2xl border border-border-soft bg-white/70 p-5">
           <p className="text-sm font-semibold text-text-secondary">Điểm tự động</p>
-          <p className="mt-2 text-4xl font-bold text-text-primary">{result.maxScore ? `${result.score}/${result.maxScore}` : "Chưa có"}</p>
+          <p className="mt-2 text-4xl font-bold text-text-primary">
+            {result.maxScore ? `${result.score}/${result.maxScore}` : "Chưa có"}
+          </p>
           <p className="mt-2 text-sm text-text-secondary">
             Đúng {result.correctCount ?? 0}/{result.gradedCount ?? 0} câu đã có đáp án. Tổng số câu trong đề: {result.totalCount ?? 0}.
           </p>
         </div>
+        <Button
+          type="button"
+          variant="secondary"
+          className="mt-6"
+          onClick={() => {
+            window.localStorage.removeItem(resultKey);
+            setResult(null);
+          }}
+        >
+          Làm bài mới
+        </Button>
       </PremiumCard>
     );
   }
