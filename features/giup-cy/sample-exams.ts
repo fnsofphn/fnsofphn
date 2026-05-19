@@ -1,4 +1,5 @@
 import type { Json } from "@/types/database";
+import week2ExamData from "./week-2-exams.json";
 
 export type SampleQuestion = {
   section: string;
@@ -440,6 +441,8 @@ const hungYenQuestions: SampleQuestion[] = [
   { section: "Phần III", question_number: 27, question_type: "short_answer", prompt: "Cho các phát biểu sau:\n(1) Mỡ lợn hoặc dầu dừa có thể dùng làm nguyên liệu để tái chế thành xà phòng.\n(2) Nước ép quả nho chín có khả năng tham gia phản ứng với thuốc thử Tollens.\n(3) Trong phân tử peptide mạch hở Gly-Ala-Gly, có 3 nguyên tử oxygen.\n(4) Tơ nylon-6,6 và tơ nitron (hay olon) đều thuộc loại tơ polyamide.\n(5) Aniline (C6H5NH2) phản ứng với nước bromine tạo thành kết tủa trắng.\n(6) Cao su lưu hóa có cấu trúc mạng lưới không gian nên đàn hồi tốt hơn cao su thường.\nLiệt kê các phát biểu đúng theo thứ tự tăng dần.", options: [], correct_answer: "126", points: 0.5, sort_order: 27 },
   { section: "Phần III", question_number: 28, question_type: "short_answer", prompt: "Dung dịch saccharose không phản ứng với thuốc thử Tollens, nhưng khi đun nóng với dung dịch acid loãng thì tạo thành dung dịch phản ứng với thuốc thử Tollens. Thủy phân hoàn toàn 0,5 mol saccharose thu được dung dịch X. X tác dụng hoàn toàn với dung dịch AgNO3/NH3 dư thu được a mol Ag. Giá trị của a là bao nhiêu?", options: [], correct_answer: "2", points: 0.5, sort_order: 28 }
 ];
+const week2Exams = week2ExamData as SampleExam[];
+
 export const sampleGiupCyExams: SampleExam[] = [
   {
     title: "17.05.01",
@@ -462,5 +465,6 @@ export const sampleGiupCyExams: SampleExam[] = [
     source_file_name: "22. THPT CẨM PHẢ (LẦN 1) - QUẢNG NINH - [Thi thử Tốt Nghiệp THPT 2026 - Môn Hóa Học ].Image.Marked.docx",
     is_active: true,
     questions: camPhaQuestions
-  }
+  },
+  ...week2Exams
 ];

@@ -1,4 +1,5 @@
 import type { GiupCyExamRow } from "@/types/database";
+import week2AssetsData from "./week-2-assets.json";
 
 export type ExamPageAsset = {
   pageNumber: number;
@@ -12,8 +13,15 @@ export type ExamDocumentAsset = {
   pages: ExamPageAsset[];
 };
 
+type Week2Asset = {
+  slug: string;
+  sourceFileName: string;
+  questionAssets: Record<string, ExamPageAsset>;
+};
+
 const ASSET_VERSION = "student-clean-20260516";
 const CROP_ASSET_VERSION = "question-crops-20260517c";
+const week2Assets = week2AssetsData as Record<string, Week2Asset>;
 
 function buildPages(basePath: string, count: number, width: number, height: number, padded = true) {
   return Array.from({ length: count }, (_, index) => {
@@ -25,6 +33,11 @@ function buildPages(basePath: string, count: number, width: number, height: numb
       height
     };
   });
+}
+
+function getWeek2Asset(exam: Pick<GiupCyExamRow, "slug" | "source_file_name">) {
+  const source = `${exam.slug} ${exam.source_file_name ?? ""}`.toLowerCase();
+  return Object.values(week2Assets).find((asset) => source.includes(asset.slug) || source.includes(asset.sourceFileName.toLowerCase())) ?? null;
 }
 
 export function getExamDocumentAsset(exam: Pick<GiupCyExamRow, "slug" | "source_file_name">): ExamDocumentAsset | null {
@@ -52,6 +65,10 @@ export function getExamPdfUrl(exam: Pick<GiupCyExamRow, "slug" | "source_file_na
 }
 
 export function getQuestionSourceAsset(exam: Pick<GiupCyExamRow, "slug" | "source_file_name">, questionNumber: number): ExamPageAsset | null {
+  const week2Asset = getWeek2Asset(exam);
+  const week2QuestionAsset = week2Asset?.questionAssets[String(questionNumber)];
+  if (week2QuestionAsset) return week2QuestionAsset;
+
   const documentAsset = getExamDocumentAsset(exam);
   if (!documentAsset) return null;
 
