@@ -77,6 +77,28 @@ function slugify(value: string) {
     .slice(0, 64);
 }
 
+const updateExamTitleSchema = z.object({
+  examId: z.string().uuid(),
+  title: z.string().min(1).max(180)
+});
+
+export async function updateExamTitle(input: unknown): Promise<ActionResult> {
+  const parsed = updateExamTitleSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: "Dữ liệu chưa hợp lệ." };
+
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("giup_cy_exams")
+    .update({ title: parsed.data.title })
+    .eq("id", parsed.data.examId)
+    .eq("user_id", user.id);
+
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/app/giup-cy");
+  return { ok: true, message: "Đã đổi tên đề." };
+}
+
 export async function toggleExamActive(input: unknown): Promise<ActionResult> {
   const parsed = toggleExamSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Dữ liệu chưa hợp lệ." };

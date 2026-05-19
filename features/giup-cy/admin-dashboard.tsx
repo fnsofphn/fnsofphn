@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { CheckCircle2, Clipboard, Eye, FileJson, Power, Trash2 } from "lucide-react";
+import { CheckCircle2, Clipboard, Eye, FileJson, Pencil, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { PremiumCard } from "@/components/shared/premium-card";
-import { deleteExam, importExam, toggleExamActive } from "@/features/giup-cy/actions";
+import { deleteExam, importExam, toggleExamActive, updateExamTitle } from "@/features/giup-cy/actions";
 import type { ExamWithStats } from "@/features/giup-cy/data";
 
 type Props = {
@@ -21,6 +21,8 @@ export function GiupCyAdminDashboard({ exams }: Props) {
   const router = useRouter();
   const [visibleExams, setVisibleExams] = useState(exams);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
   const [isImporting, startImport] = useTransition();
   const [importTitle, setImportTitle] = useState("");
   const [importDuration, setImportDuration] = useState("50");
@@ -43,6 +45,28 @@ export function GiupCyAdminDashboard({ exams }: Props) {
         router.refresh();
       } else {
         setVisibleExams((current) => current.map((item) => (item.id === exam.id ? { ...item, is_active: exam.is_active } : item)));
+        toast.error(result.message);
+      }
+    });
+  }
+
+  function startRename(exam: ExamWithStats) {
+    setEditingId(exam.id);
+    setEditingTitle(exam.title);
+  }
+
+  function saveRename(exam: ExamWithStats) {
+    if (!editingTitle.trim() || editingTitle === exam.title) { setEditingId(null); return; }
+    setPendingId(exam.id);
+    startImport(async () => {
+      const result = await updateExamTitle({ examId: exam.id, title: editingTitle.trim() });
+      setPendingId(null);
+      setEditingId(null);
+      if (result.ok) {
+        setVisibleExams((current) => current.map((item) => (item.id === exam.id ? { ...item, title: editingTitle.trim() } : item)));
+        toast.success(result.message);
+        router.refresh();
+      } else {
         toast.error(result.message);
       }
     });
@@ -94,7 +118,26 @@ export function GiupCyAdminDashboard({ exams }: Props) {
                   <Badge variant="neutral">{exam.questionCount} câu</Badge>
                   <Badge variant="neutral">{exam.attemptCount} bài nộp</Badge>
                 </div>
-                <h2 className="text-xl font-bold text-text-primary">{exam.title}</h2>
+                {editingId === exam.id ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      autoFocus
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") saveRename(exam); if (e.key === "Escape") setEditingId(null); }}
+                      className="text-xl font-bold"
+                    />
+                    <Button size="sm" onClick={() => saveRename(exam)} disabled={pendingId === exam.id}>Lưu</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Hủy</Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-text-primary">{exam.title}</h2>
+                    <button type="button" onClick={() => startRename(exam)} className="text-text-secondary hover:text-text-primary" aria-label="Đổi tên">
+                      <Pencil className="size-4" />
+                    </button>
+                  </div>
+                )}
                 <p className="mt-2 text-sm leading-6 text-text-secondary">{exam.description}</p>
                 <p className="mt-2 text-xs text-text-secondary">Nguồn: {exam.source_file_name ?? "Import thủ công"}</p>
               </div>
