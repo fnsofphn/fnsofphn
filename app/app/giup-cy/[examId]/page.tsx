@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageTransition } from "@/components/shared/page-transition";
 import { GiupCyExamDetail } from "@/features/giup-cy/exam-detail";
@@ -18,7 +18,7 @@ export default async function GiupCyExamDetailPage({ params }: PageProps) {
     : user.id;
   const detail = await getAdminExamDetail(effectiveUserId, examId);
 
-  if (!detail) notFound();
+  if (!detail) redirect("/app/giup-cy");
 
   return (
     <PageTransition className="mx-auto max-w-7xl space-y-8">
