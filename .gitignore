@@ -43,3 +43,5 @@ tsconfig.tsbuildinfo
 # supabase local
 .branches
 .temp
+
+.vercel
