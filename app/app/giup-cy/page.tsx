@@ -4,10 +4,12 @@ import { PageTransition } from "@/components/shared/page-transition";
 import { FloatingStatCard } from "@/components/shared/floating-stat-card";
 import { GiupCyAdminDashboard } from "@/features/giup-cy/admin-dashboard";
 import { getAdminExams } from "@/features/giup-cy/data";
+import { seedGiupCyExamsForUser } from "@/lib/auth/bootstrap";
 import { requireUser } from "@/lib/auth/guards";
 
 export default async function GiupCyPage() {
   const user = await requireUser();
+  await seedGiupCyExamsForUser(user);
   const exams = await getAdminExams(user.id);
   const activeCount = exams.filter((exam) => exam.is_active).length;
   const attemptCount = exams.reduce((total, exam) => total + exam.attemptCount, 0);

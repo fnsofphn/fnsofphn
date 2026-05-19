@@ -4,83 +4,86 @@ import { defaultEnergyActivities, defaultProfile } from "@/lib/constants/profile
 import type { AuthUser } from "@/lib/auth/guards";
 import { sampleGiupCyExams } from "@/features/giup-cy/sample-exams";
 
-export async function ensureUserBootstrap(user: AuthUser) {
+export async function seedGiupCyExamsForUser(user: AuthUser) {
   const supabase = await createClient();
-  const today = format(new Date(), "yyyy-MM-dd");
-  const seedGiupCyExams = async () => {
-    for (const sampleExam of sampleGiupCyExams) {
-      const slug = `${sampleExam.slugSuffix}-${user.id.slice(0, 8)}`;
-      const { data: existingExam } = await supabase
+
+  for (const sampleExam of sampleGiupCyExams) {
+    const slug = `${sampleExam.slugSuffix}-${user.id.slice(0, 8)}`;
+    const { data: existingExam } = await supabase
+      .from("giup_cy_exams")
+      .select("id, description")
+      .eq("user_id", user.id)
+      .eq("slug", slug)
+      .maybeSingle();
+
+    const insertQuestions = async (examId: string) => {
+      await supabase.from("giup_cy_exam_questions").insert(
+        sampleExam.questions.map((question) => ({
+          exam_id: examId,
+          section: question.section,
+          question_number: question.question_number,
+          question_type: question.question_type,
+          prompt: question.prompt,
+          options: question.options,
+          correct_answer: question.correct_answer,
+          points: question.points,
+          explanation: null,
+          needs_review: question.needs_review ?? false,
+          sort_order: question.sort_order
+        }))
+      );
+    };
+
+    if (existingExam) {
+      const { count: questionCount } = await supabase
+        .from("giup_cy_exam_questions")
+        .select("id", { count: "exact", head: true })
+        .eq("exam_id", existingExam.id);
+
+      await supabase
         .from("giup_cy_exams")
-        .select("id, description")
-        .eq("user_id", user.id)
-        .eq("slug", slug)
-        .maybeSingle();
-
-      const insertQuestions = async (examId: string) => {
-        await supabase.from("giup_cy_exam_questions").insert(
-          sampleExam.questions.map((question) => ({
-            exam_id: examId,
-            section: question.section,
-            question_number: question.question_number,
-            question_type: question.question_type,
-            prompt: question.prompt,
-            options: question.options,
-            correct_answer: question.correct_answer,
-            points: question.points,
-            explanation: null,
-            needs_review: question.needs_review ?? false,
-            sort_order: question.sort_order
-          }))
-        );
-      };
-
-      if (existingExam) {
-        const { count: questionCount } = await supabase
-          .from("giup_cy_exam_questions")
-          .select("id", { count: "exact", head: true })
-          .eq("exam_id", existingExam.id);
-
-        await supabase
-          .from("giup_cy_exams")
-          .update({
-            title: sampleExam.title,
-            description: sampleExam.description,
-            subject: sampleExam.subject,
-            duration_minutes: sampleExam.duration_minutes,
-            source_file_name: sampleExam.source_file_name
-          })
-          .eq("id", existingExam.id)
-          .eq("user_id", user.id);
-
-        if (questionCount !== sampleExam.questions.length || existingExam.description !== sampleExam.description) {
-          await supabase.from("giup_cy_exam_attempts").delete().eq("exam_id", existingExam.id);
-          await supabase.from("giup_cy_exam_questions").delete().eq("exam_id", existingExam.id);
-          await insertQuestions(existingExam.id);
-        }
-        continue;
-      }
-
-      const { data: exam } = await supabase
-        .from("giup_cy_exams")
-        .insert({
-          user_id: user.id,
+        .update({
           title: sampleExam.title,
           description: sampleExam.description,
           subject: sampleExam.subject,
           duration_minutes: sampleExam.duration_minutes,
-          slug,
-          source_file_name: sampleExam.source_file_name,
-          is_active: sampleExam.is_active
+          source_file_name: sampleExam.source_file_name
         })
-        .select("id")
-        .single();
+        .eq("id", existingExam.id)
+        .eq("user_id", user.id);
 
-      if (exam) await insertQuestions(exam.id);
+      if (questionCount !== sampleExam.questions.length || existingExam.description !== sampleExam.description) {
+        await supabase.from("giup_cy_exam_attempts").delete().eq("exam_id", existingExam.id);
+        await supabase.from("giup_cy_exam_questions").delete().eq("exam_id", existingExam.id);
+        await insertQuestions(existingExam.id);
+      }
+      continue;
     }
-  };
 
-  await seedGiupCyExams();
+    const { data: exam } = await supabase
+      .from("giup_cy_exams")
+      .insert({
+        user_id: user.id,
+        title: sampleExam.title,
+        description: sampleExam.description,
+        subject: sampleExam.subject,
+        duration_minutes: sampleExam.duration_minutes,
+        slug,
+        source_file_name: sampleExam.source_file_name,
+        is_active: sampleExam.is_active
+      })
+      .select("id")
+      .single();
+
+    if (exam) await insertQuestions(exam.id);
+  }
+}
+
+export async function ensureUserBootstrap(user: AuthUser) {
+  const supabase = await createClient();
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  await seedGiupCyExamsForUser(user);
 
   const { data: profile } = await supabase
     .from("profiles")
