@@ -37,6 +37,7 @@ type AppShellProps = {
   } | null;
   quickNotes: QuickNoteRow[];
   giupCyOnly?: boolean;
+  hiddenNavItems?: string[];
 };
 
 const navItems = [
@@ -63,11 +64,13 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AppShell({ children, profile, quickNotes, giupCyOnly = false }: AppShellProps) {
+export function AppShell({ children, profile, quickNotes, giupCyOnly = false, hiddenNavItems = [] }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
-  const visibleNavItems = giupCyOnly ? navItems.filter((item) => item.href === "/app/giup-cy") : navItems;
+  const visibleNavItems = giupCyOnly
+    ? navItems.filter((item) => item.href === "/app/giup-cy")
+    : navItems.filter((item) => !hiddenNavItems.includes(item.href));
 
   useEffect(() => {
     visibleNavItems.forEach((item) => router.prefetch(item.href));

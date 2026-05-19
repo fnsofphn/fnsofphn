@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/shared/app-shell";
-import { isGiupCyOnlyEmail } from "@/lib/auth/access";
+import { getHiddenNavItems, isGiupCyOnlyEmail } from "@/lib/auth/access";
 import { ensureUserBootstrap } from "@/lib/auth/bootstrap";
 import { requireUser } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function ProtectedAppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   const giupCyOnly = isGiupCyOnlyEmail(user.email);
+  const hiddenNavItems = getHiddenNavItems(user.email);
 
   if (!giupCyOnly) {
     await ensureUserBootstrap(user);
@@ -33,7 +34,7 @@ export default async function ProtectedAppLayout({ children }: { children: React
         .limit(8);
 
   return (
-    <AppShell profile={profile} quickNotes={(quickNotes ?? []) as QuickNoteRow[]} giupCyOnly={giupCyOnly}>
+    <AppShell profile={profile} quickNotes={(quickNotes ?? []) as QuickNoteRow[]} giupCyOnly={giupCyOnly} hiddenNavItems={hiddenNavItems}>
       {children}
     </AppShell>
   );
