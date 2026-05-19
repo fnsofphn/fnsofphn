@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { gradeAttempt } from "@/features/giup-cy/grading";
 import { requireUser } from "@/lib/auth/guards";
+import { createAdminClient, isGiupCyManagerKeyValid } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { GiupCyExamQuestionRow, Json } from "@/types/database";
 
@@ -20,6 +21,10 @@ type ActionResult = {
 const toggleExamSchema = z.object({
   examId: z.string().uuid(),
   isActive: z.boolean()
+});
+
+const publicToggleExamSchema = toggleExamSchema.extend({
+  managerKey: z.string().optional()
 });
 
 const deleteExamSchema = z.object({
@@ -92,6 +97,23 @@ export async function toggleExamActive(input: unknown): Promise<ActionResult> {
   revalidatePath("/app/giup-cy");
   revalidatePath(`/app/giup-cy/${parsed.data.examId}`);
   return { ok: true, message: parsed.data.isActive ? "Đã mở đề." : "Đã tắt đề." };
+}
+
+export async function togglePublicExamActive(input: unknown): Promise<ActionResult> {
+  const parsed = publicToggleExamSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: "Dữ liệu chưa hợp lệ." };
+  if (!isGiupCyManagerKeyValid(parsed.data.managerKey)) return { ok: false, message: "Link quản lý không hợp lệ hoặc thiếu key." };
+
+  try {
+    const supabase = createAdminClient();
+    const { error } = await supabase.from("giup_cy_exams").update({ is_active: parsed.data.isActive }).eq("id", parsed.data.examId);
+
+    if (error) return { ok: false, message: error.message };
+    revalidatePath("/giup-cy");
+    return { ok: true, message: parsed.data.isActive ? "Đã mở đề." : "Đã đóng đề." };
+  } catch (error) {
+    return { ok: false, message: error instanceof Error ? error.message : "Không thể cập nhật đề." };
+  }
 }
 
 export async function deleteExam(input: unknown): Promise<ActionResult> {

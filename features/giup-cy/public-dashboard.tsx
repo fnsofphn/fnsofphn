@@ -6,10 +6,12 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PremiumCard } from "@/components/shared/premium-card";
+import { togglePublicExamActive } from "@/features/giup-cy/actions";
 import type { ExamWithStats } from "@/features/giup-cy/data";
 
 type Props = {
   exams: ExamWithStats[];
+  managerKey: string;
 };
 
 const text = {
@@ -27,11 +29,21 @@ const text = {
   empty: "Ch\u01b0a c\u00f3 \u0111\u1ec1 n\u00e0o \u0111ang m\u1edf."
 };
 
-export function PublicGiupCyDashboard({ exams }: Props) {
+export function PublicGiupCyDashboard({ exams, managerKey }: Props) {
   async function copyLink(slug: string) {
     const url = `${window.location.origin}/exam/${slug}`;
     await navigator.clipboard.writeText(url);
     toast.success(text.copied);
+  }
+
+  async function toggle(exam: ExamWithStats) {
+    const result = await togglePublicExamActive({ examId: exam.id, isActive: !exam.is_active, managerKey });
+    if (result.ok) {
+      toast.success(result.message);
+      window.location.reload();
+      return;
+    }
+    toast.error(result.message);
   }
 
   return (
@@ -56,12 +68,12 @@ export function PublicGiupCyDashboard({ exams }: Props) {
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
-              <Button type="button" variant={exam.is_active ? "outline" : "default"} disabled>
+              <Button type="button" variant={exam.is_active ? "outline" : "default"} onClick={() => toggle(exam)}>
                 <Power className="size-4" />
                 {exam.is_active ? text.close : text.openAction}
               </Button>
               <Button asChild variant="secondary">
-                <Link href={`/app/giup-cy/${exam.id}`}>
+                <Link href={`/giup-cy/results/${exam.id}?key=${encodeURIComponent(managerKey)}`}>
                   <Eye className="size-4" />
                   {text.results}
                 </Link>

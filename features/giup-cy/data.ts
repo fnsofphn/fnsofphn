@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, isGiupCyManagerKeyValid } from "@/lib/supabase/admin";
 import type { GiupCyExamAttemptRow, GiupCyExamQuestionRow, GiupCyExamRow } from "@/types/database";
 
 export type ExamWithStats = GiupCyExamRow & {
@@ -62,13 +63,17 @@ export async function getAdminExamDetail(userId: string, examId: string) {
   };
 }
 
-export async function getPublicActiveExams() {
-  const supabase = await createClient();
-  const { data: exams, error } = await supabase
+export async function getPublicActiveExams(managerKey?: string | null) {
+  const isManager = isGiupCyManagerKeyValid(managerKey);
+  const supabase = isManager ? createAdminClient() : await createClient();
+  let query = supabase
     .from("giup_cy_exams")
     .select("*")
-    .eq("is_active", true)
     .order("created_at", { ascending: false });
+
+  if (!isManager) query = query.eq("is_active", true);
+
+  const { data: exams, error } = await query;
 
   if (error) throw new Error(error.message);
 
@@ -87,6 +92,28 @@ export async function getPublicActiveExams() {
       };
     })
   );
+}
+
+export async function getPublicExamResults(examId: string, managerKey?: string | null) {
+  if (!isGiupCyManagerKeyValid(managerKey)) return null;
+
+  const supabase = createAdminClient();
+  const [{ data: exam, error: examError }, { data: questions, error: questionError }, { data: attempts, error: attemptError }] = await Promise.all([
+    supabase.from("giup_cy_exams").select("*").eq("id", examId).maybeSingle(),
+    supabase.from("giup_cy_exam_questions").select("*").eq("exam_id", examId).order("sort_order", { ascending: true }),
+    supabase.from("giup_cy_exam_attempts").select("*").eq("exam_id", examId).order("submitted_at", { ascending: false })
+  ]);
+
+  if (examError) throw new Error(examError.message);
+  if (questionError) throw new Error(questionError.message);
+  if (attemptError) throw new Error(attemptError.message);
+  if (!exam) return null;
+
+  return {
+    exam: exam as GiupCyExamRow,
+    questions: (questions ?? []) as GiupCyExamQuestionRow[],
+    attempts: (attempts ?? []) as GiupCyExamAttemptRow[]
+  };
 }
 
 export async function getPublicExam(slug: string) {

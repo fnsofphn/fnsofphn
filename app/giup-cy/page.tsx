@@ -4,8 +4,14 @@ import { PublicGiupCyDashboard } from "@/features/giup-cy/public-dashboard";
 
 export const dynamic = "force-dynamic";
 
-export default async function PublicGiupCyPage() {
-  const exams = await getPublicActiveExams();
+type PageProps = {
+  searchParams: Promise<{ key?: string }>;
+};
+
+export default async function PublicGiupCyPage({ searchParams }: PageProps) {
+  const { key } = await searchParams;
+  const managerKey = key ?? process.env.GIUP_CY_PUBLIC_MANAGER_KEY ?? "";
+  const exams = await getPublicActiveExams(managerKey);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#F7F8FC_0%,#EEF2F8_100%)] px-4 py-8">
@@ -23,7 +29,7 @@ export default async function PublicGiupCyPage() {
           </Badge>
         </div>
 
-        <PublicGiupCyDashboard exams={exams} />
+        <PublicGiupCyDashboard exams={exams} managerKey={managerKey} />
       </section>
     </main>
   );
