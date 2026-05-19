@@ -11,7 +11,6 @@ import type { ExamWithStats } from "@/features/giup-cy/data";
 
 type Props = {
   exams: ExamWithStats[];
-  managerKey: string;
 };
 
 const text = {
@@ -29,7 +28,7 @@ const text = {
   empty: "Ch\u01b0a c\u00f3 \u0111\u1ec1 n\u00e0o \u0111ang m\u1edf."
 };
 
-export function PublicGiupCyDashboard({ exams, managerKey }: Props) {
+export function PublicGiupCyDashboard({ exams }: Props) {
   async function copyLink(slug: string) {
     const url = `${window.location.origin}/exam/${slug}`;
     await navigator.clipboard.writeText(url);
@@ -37,7 +36,7 @@ export function PublicGiupCyDashboard({ exams, managerKey }: Props) {
   }
 
   async function toggle(exam: ExamWithStats) {
-    const result = await togglePublicExamActive({ examId: exam.id, isActive: !exam.is_active, managerKey });
+    const result = await togglePublicExamActive({ examId: exam.id, isActive: !exam.is_active });
     if (result.ok) {
       toast.success(result.message);
       window.location.reload();
@@ -73,7 +72,7 @@ export function PublicGiupCyDashboard({ exams, managerKey }: Props) {
                 {exam.is_active ? text.close : text.openAction}
               </Button>
               <Button asChild variant="secondary">
-                <Link href={`/giup-cy/results/${exam.id}?key=${encodeURIComponent(managerKey)}`}>
+                <Link href={`/giup-cy/results/${exam.id}`}>
                   <Eye className="size-4" />
                   {text.results}
                 </Link>

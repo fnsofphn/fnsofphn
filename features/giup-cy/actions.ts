@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { gradeAttempt } from "@/features/giup-cy/grading";
 import { requireUser } from "@/lib/auth/guards";
-import { createAdminClient, isGiupCyManagerKeyValid } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { GiupCyExamQuestionRow, Json } from "@/types/database";
 
@@ -21,10 +21,6 @@ type ActionResult = {
 const toggleExamSchema = z.object({
   examId: z.string().uuid(),
   isActive: z.boolean()
-});
-
-const publicToggleExamSchema = toggleExamSchema.extend({
-  managerKey: z.string().optional()
 });
 
 const deleteExamSchema = z.object({
@@ -100,9 +96,8 @@ export async function toggleExamActive(input: unknown): Promise<ActionResult> {
 }
 
 export async function togglePublicExamActive(input: unknown): Promise<ActionResult> {
-  const parsed = publicToggleExamSchema.safeParse(input);
+  const parsed = toggleExamSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Dữ liệu chưa hợp lệ." };
-  if (!isGiupCyManagerKeyValid(parsed.data.managerKey)) return { ok: false, message: "Link quản lý không hợp lệ hoặc thiếu key." };
 
   try {
     const supabase = createAdminClient();

@@ -17,8 +17,3 @@ export function createAdminClient() {
     }
   });
 }
-
-export function isGiupCyManagerKeyValid(key?: string | null) {
-  const configuredKey = process.env.GIUP_CY_PUBLIC_MANAGER_KEY;
-  return Boolean(configuredKey && key && key === configuredKey);
-}

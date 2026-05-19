@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient, isGiupCyManagerKeyValid } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { GiupCyExamAttemptRow, GiupCyExamQuestionRow, GiupCyExamRow } from "@/types/database";
 
 export type ExamWithStats = GiupCyExamRow & {
@@ -63,15 +63,19 @@ export async function getAdminExamDetail(userId: string, examId: string) {
   };
 }
 
-export async function getPublicActiveExams(managerKey?: string | null) {
-  const isManager = isGiupCyManagerKeyValid(managerKey);
-  const supabase = isManager ? createAdminClient() : await createClient();
-  let query = supabase
-    .from("giup_cy_exams")
-    .select("*")
-    .order("created_at", { ascending: false });
+export async function getPublicActiveExams() {
+  let supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAdminClient>;
+  let showOnlyActive = false;
 
-  if (!isManager) query = query.eq("is_active", true);
+  try {
+    supabase = createAdminClient();
+  } catch {
+    supabase = await createClient();
+    showOnlyActive = true;
+  }
+
+  let query = supabase.from("giup_cy_exams").select("*").order("created_at", { ascending: false });
+  if (showOnlyActive) query = query.eq("is_active", true);
 
   const { data: exams, error } = await query;
 
@@ -94,9 +98,7 @@ export async function getPublicActiveExams(managerKey?: string | null) {
   );
 }
 
-export async function getPublicExamResults(examId: string, managerKey?: string | null) {
-  if (!isGiupCyManagerKeyValid(managerKey)) return null;
-
+export async function getPublicExamResults(examId: string) {
   const supabase = createAdminClient();
   const [{ data: exam, error: examError }, { data: questions, error: questionError }, { data: attempts, error: attemptError }] = await Promise.all([
     supabase.from("giup_cy_exams").select("*").eq("id", examId).maybeSingle(),

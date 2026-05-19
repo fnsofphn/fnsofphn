@@ -5,7 +5,6 @@ import { getPublicExamResults } from "@/features/giup-cy/data";
 
 type PageProps = {
   params: Promise<{ examId: string }>;
-  searchParams: Promise<{ key?: string }>;
 };
 
 function formatScore(score: number, maxScore: number) {
@@ -13,9 +12,9 @@ function formatScore(score: number, maxScore: number) {
   return `${score}/${maxScore}`;
 }
 
-export default async function PublicGiupCyResultsPage({ params, searchParams }: PageProps) {
-  const [{ examId }, { key }] = await Promise.all([params, searchParams]);
-  const detail = await getPublicExamResults(examId, key);
+export default async function PublicGiupCyResultsPage({ params }: PageProps) {
+  const { examId } = await params;
+  const detail = await getPublicExamResults(examId);
 
   if (!detail) notFound();
 
