@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Clipboard, Eye, Power } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +9,6 @@ import { Button } from "@/components/ui/button";
 import { PremiumCard } from "@/components/shared/premium-card";
 import { togglePublicExamActive } from "@/features/giup-cy/actions";
 import type { ExamWithStats } from "@/features/giup-cy/data";
-
-type Props = {
-  exams: ExamWithStats[];
-};
 
 const text = {
   copied: "\u0110\u00e3 copy link \u0111\u1ec1.",
@@ -28,7 +25,35 @@ const text = {
   empty: "Ch\u01b0a c\u00f3 \u0111\u1ec1 n\u00e0o \u0111ang m\u1edf."
 };
 
-export function PublicGiupCyDashboard({ exams }: Props) {
+export function PublicGiupCyDashboard() {
+  const [exams, setExams] = useState<ExamWithStats[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadExams() {
+      try {
+        const response = await fetch("/api/giup-cy/exams", { cache: "no-store" });
+        const payload = (await response.json()) as { exams?: ExamWithStats[]; error?: string };
+        if (!active) return;
+        setExams(payload.exams ?? []);
+        setLoadError(payload.error ?? "");
+      } catch (error) {
+        if (!active) return;
+        setLoadError(error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch \u0111\u1ec1.");
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    }
+
+    loadExams();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   async function copyLink(slug: string) {
     const url = `${window.location.origin}/exam/${slug}`;
     await navigator.clipboard.writeText(url);
@@ -39,7 +64,7 @@ export function PublicGiupCyDashboard({ exams }: Props) {
     const result = await togglePublicExamActive({ examId: exam.id, isActive: !exam.is_active });
     if (result.ok) {
       toast.success(result.message);
-      window.location.reload();
+      setExams((current) => current.map((item) => (item.id === exam.id ? { ...item, is_active: !exam.is_active } : item)));
       return;
     }
     toast.error(result.message);
@@ -47,6 +72,31 @@ export function PublicGiupCyDashboard({ exams }: Props) {
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary-indigo">{"Gi\u00fap Cy"}</p>
+          <h1 className="mt-2 text-3xl font-bold text-text-primary">{"\u0110\u1ec1 \u0111ang m\u1edf"}</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
+            {"Qu\u1ea3n l\u00fd nhanh c\u00e1c \u0111\u1ec1 \u0111ang m\u1edf. Trang n\u00e0y kh\u00f4ng c\u1ea7n \u0111\u0103ng nh\u1eadp."}
+          </p>
+        </div>
+        <Badge variant="cyan">
+          {exams.length} {"\u0111\u1ec1"}
+        </Badge>
+      </div>
+
+      {loadError ? (
+        <PremiumCard hover={false} className="rounded-2xl border-amber-200 bg-amber-50/80">
+          <p className="text-sm font-semibold leading-6 text-amber-900">{loadError}</p>
+        </PremiumCard>
+      ) : null}
+
+      {isLoading ? (
+        <PremiumCard hover={false} className="rounded-2xl">
+          <p className="text-sm leading-6 text-text-secondary">{"\u0110ang t\u1ea3i danh s\u00e1ch \u0111\u1ec1..."}</p>
+        </PremiumCard>
+      ) : null}
+
       {exams.map((exam) => (
         <PremiumCard key={exam.id} hover={false} className="rounded-2xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
