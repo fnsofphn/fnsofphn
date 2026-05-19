@@ -14,6 +14,9 @@ $a = "http://schemas.openxmlformats.org/drawingml/2006/main"
 $r = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 $relNs = "http://schemas.openxmlformats.org/package/2006/relationships"
 $cauPattern = "C" + [char]0x00E2 + "u"
+$questionReviewText = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("xJDhu4EgxJHGsOG7o2Mgbmjhuq1wIHThu6sgV29yZCB0deG6p24gMjsgxJHDoXAgw6FuIGPhuqduIHLDoCBzb8OhdCB0aOG7pyBjw7RuZyDEkeG7gyB0csOhbmggbOG7l2kgY8O0bmcgdGjhu6ljL2jDrG5oLg=="))
+$examDescriptionText = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("xJDhu4EgdHXhuqduIDIgxJHGsOG7o2Mgbmjhuq1wIHThu6sgZmlsZSBXb3JkIGfhu5FjLiBDw6FjIGPDonUgY8OzIGPDtG5nIHRo4bupYy9ow6xuaCDEkcaw4bujYyBnaeG7ryDhuqNuaCBuaMO6bmcgdOG7qyBXb3JkOyDEkcOhcCDDoW4gxJFhbmcgxJHhu4MgcsOgIHNvw6F0IMSR4buDIHRyw6FuaCBjaOG6pW0gc2FpLg=="))
+$chemistrySubjectText = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("SMOzYSBo4buNYw=="))
 
 function Normalize-Text([string]$value) {
   if ($null -eq $value) { return "" }
@@ -119,7 +122,7 @@ function New-Question([string]$section, [int]$localNumber, [string[]]$lines, [in
     correct_answer = $null
     points = $points
     needs_review = $true
-    explanation = "Đề được nhập từ Word tuần 2; đáp án cần rà soát thủ công để tránh lỗi công thức/hình."
+    explanation = $questionReviewText
     sort_order = $sortOrder
   }
 }
@@ -349,8 +352,8 @@ foreach ($file in Get-ChildItem -LiteralPath $sourceDir -Filter *.docx | Sort-Ob
     $titlePrefix = "{0:00}.05.{1:00}" -f 19, $index
     $exams += [ordered]@{
       title = $titlePrefix
-      description = "Đề tuần 2 được nhập từ file Word gốc. Các câu có công thức/hình được giữ ảnh nhúng từ Word; đáp án đang để rà soát để tránh chấm sai."
-      subject = "Hóa học"
+      description = $examDescriptionText
+      subject = $chemistrySubjectText
       duration_minutes = 50
       slugSuffix = "$slug-week-2"
       source_file_name = $file.Name
