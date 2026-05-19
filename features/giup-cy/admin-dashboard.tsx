@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { CheckCircle2, Clipboard, Eye, FileJson, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +18,8 @@ type Props = {
 };
 
 export function GiupCyAdminDashboard({ exams }: Props) {
+  const router = useRouter();
+  const [visibleExams, setVisibleExams] = useState(exams);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [isImporting, startImport] = useTransition();
   const [importTitle, setImportTitle] = useState("");
@@ -30,13 +33,16 @@ export function GiupCyAdminDashboard({ exams }: Props) {
   }
 
   function toggle(exam: ExamWithStats) {
+    setVisibleExams((current) => current.map((item) => (item.id === exam.id ? { ...item, is_active: !exam.is_active } : item)));
     setPendingId(exam.id);
     startImport(async () => {
       const result = await toggleExamActive({ examId: exam.id, isActive: !exam.is_active });
       setPendingId(null);
       if (result.ok) {
         toast.success(result.message);
+        router.refresh();
       } else {
+        setVisibleExams((current) => current.map((item) => (item.id === exam.id ? { ...item, is_active: exam.is_active } : item)));
         toast.error(result.message);
       }
     });
@@ -49,6 +55,7 @@ export function GiupCyAdminDashboard({ exams }: Props) {
       const result = await deleteExam({ examId: exam.id });
       setPendingId(null);
       if (result.ok) {
+        setVisibleExams((current) => current.filter((item) => item.id !== exam.id));
         toast.success(result.message);
       } else {
         toast.error(result.message);
@@ -78,7 +85,7 @@ export function GiupCyAdminDashboard({ exams }: Props) {
   return (
     <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
       <section className="space-y-4">
-        {exams.map((exam) => (
+        {visibleExams.map((exam) => (
           <PremiumCard key={exam.id} hover={false} className="rounded-2xl">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
@@ -114,7 +121,7 @@ export function GiupCyAdminDashboard({ exams }: Props) {
           </PremiumCard>
         ))}
 
-        {!exams.length ? (
+        {!visibleExams.length ? (
           <PremiumCard hover={false}>
             <div className="flex items-center gap-3 text-text-secondary">
               <CheckCircle2 className="size-5" />
