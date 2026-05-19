@@ -22,14 +22,22 @@ function gradeSingleAnswer(answer: Json, correctAnswer: Json) {
   return normalizeText(answer) === normalizeText(correctAnswer);
 }
 
-function gradeTrueFalse(answer: Json, correctAnswer: Json) {
+// Returns partial score multiplier: 4/4=1.0, 3/4=0.5, 2/4=0.25, 1/4=0.1, 0/4=0, null=no answer key
+function gradeTrueFalse(answer: Json, correctAnswer: Json): number | null {
   if (!correctAnswer || typeof correctAnswer !== "object" || Array.isArray(correctAnswer)) return null;
-  if (!answer || typeof answer !== "object" || Array.isArray(answer)) return false;
-
-  return Object.entries(correctAnswer).every(([key, value]) => {
-    const answerValue = (answer as Record<string, unknown>)[key];
-    return Boolean(answerValue) === Boolean(value);
-  });
+  const entries = Object.entries(correctAnswer as Record<string, unknown>);
+  const total = entries.length;
+  if (!total) return null;
+  const userAnswer =
+    !answer || typeof answer !== "object" || Array.isArray(answer)
+      ? ({} as Record<string, unknown>)
+      : (answer as Record<string, unknown>);
+  const correct = entries.filter(([key, value]) => Boolean(userAnswer[key]) === Boolean(value)).length;
+  if (correct === total) return 1.0;
+  if (correct === total - 1) return 0.5;
+  if (correct === total - 2) return 0.25;
+  if (correct === 1) return 0.1;
+  return 0;
 }
 
 export function gradeAttempt(questions: GiupCyExamQuestionRow[], answers: Record<string, Json>) {
@@ -41,22 +49,29 @@ export function gradeAttempt(questions: GiupCyExamQuestionRow[], answers: Record
 
   for (const question of questions) {
     const answer = answers[question.id] ?? null;
+    const points = Number(question.points ?? 0);
     let isCorrect: boolean | null = null;
+    let earnedPoints = 0;
 
     if (question.question_type === "true_false") {
-      isCorrect = gradeTrueFalse(answer, question.correct_answer);
+      const multiplier = gradeTrueFalse(answer, question.correct_answer);
+      if (multiplier !== null) {
+        earnedPoints = multiplier * points;
+        isCorrect = multiplier === 1.0;
+        gradedCount += 1;
+        maxScore += points;
+        score += earnedPoints;
+        if (isCorrect) correctCount += 1;
+      }
     } else {
       isCorrect = gradeSingleAnswer(answer, question.correct_answer);
-    }
-
-    const points = Number(question.points ?? 0);
-    const earnedPoints = isCorrect ? points : 0;
-
-    if (isCorrect !== null) {
-      gradedCount += 1;
-      maxScore += points;
-      score += earnedPoints;
-      if (isCorrect) correctCount += 1;
+      if (isCorrect !== null) {
+        earnedPoints = isCorrect ? points : 0;
+        gradedCount += 1;
+        maxScore += points;
+        score += earnedPoints;
+        if (isCorrect) correctCount += 1;
+      }
     }
 
     details.push({
