@@ -1,4 +1,4 @@
-export const GIUP_CY_ONLY_EMAILS = new Set<string>([]);
+export const GIUP_CY_ONLY_EMAILS = new Set<string>(["namcy102025@gmail.com"]);
 
 // href prefixes of nav items to hide per email
 const HIDDEN_NAV_ITEMS: Record<string, string[]> = {
@@ -10,7 +10,7 @@ export const GIUP_CY_SHARED_OWNER_EMAIL = GIUP_CY_OWNER_EMAIL;
 export const GIUP_CY_SHARED_OWNER_ALIAS = "fnsofphn";
 
 // Co-admins share full read+write access to the owner's giup-cy data.
-export const GIUP_CY_CO_ADMIN_EMAILS = new Set(["namcy@gmail.com"]);
+export const GIUP_CY_CO_ADMIN_EMAILS = new Set(["namcy@gmail.com", "namcy102025@gmail.com"]);
 export const GIUP_CY_SHARED_MANAGER_EMAILS = GIUP_CY_CO_ADMIN_EMAILS;
 
 export function isGiupCyOnlyEmail(email: string | null | undefined) {
