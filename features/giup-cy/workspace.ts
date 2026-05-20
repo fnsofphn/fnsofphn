@@ -87,6 +87,6 @@ export async function getGiupCyWorkspace(user: AuthUser): Promise<GiupCyWorkspac
   return {
     ownerUser,
     delegated: true,
-    supabase: tryCreateAdminClient() ?? (await createClient())
+    supabase: await createClient()
   };
 }

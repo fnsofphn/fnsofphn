@@ -1,5 +1,5 @@
 import { getGiupCyWorkspace } from "@/features/giup-cy/workspace";
-import { GIUP_CY_OWNER_EMAIL, GIUP_CY_OWNER_USER_ID } from "@/lib/auth/access";
+import { GIUP_CY_OWNER_EMAIL, GIUP_CY_OWNER_USER_ID, isGiupCySharedManagerEmail } from "@/lib/auth/access";
 import type { AuthUser } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -81,9 +81,19 @@ export async function getAdminExams(user: AuthUser) {
       .eq("user_id", ownerUser.id)
       .order("created_at", { ascending: false });
 
-    if (error) return [];
+    if (error) {
+      if (isGiupCySharedManagerEmail(user.email)) {
+        return (await getPublicActiveExams()).filter((exam) => exam.user_id === ownerUser.id);
+      }
+      return [];
+    }
 
     const rows = (exams ?? []) as GiupCyExamRow[];
+    if (!rows.length && isGiupCySharedManagerEmail(user.email)) {
+      const publicOwnerExams = (await getPublicActiveExams()).filter((exam) => exam.user_id === ownerUser.id);
+      if (publicOwnerExams.length) return publicOwnerExams;
+    }
+
     const stats = await Promise.all(
       rows.map(async (exam) => {
         const [{ count: questionCount }, { count: attemptCount }] = await Promise.all([
