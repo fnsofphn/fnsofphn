@@ -120,6 +120,134 @@ function csvCell(value: string | number) {
   return `"${String(value).replaceAll('"', '""')}"`;
 }
 
+function toPdfText(value: unknown) {
+  return String(value ?? "")
+    .replaceAll("Đ", "D")
+    .replaceAll("đ", "d")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function escapePdfText(value: string) {
+  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
+function wrapPdfText(value: string, maxChars = 92) {
+  const words = toPdfText(value).split(" ").filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    if (!current) {
+      current = word;
+    } else if (`${current} ${word}`.length <= maxChars) {
+      current = `${current} ${word}`;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+
+  if (current) lines.push(current);
+  return lines.length ? lines : [""];
+}
+
+function pdfFileName(exam: GiupCyExamRow, attempt?: GiupCyExamAttemptRow) {
+  const student = attempt ? `-${toPdfText(attempt.student_name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}` : "";
+  return `${exam.slug}${student || "-ket-qua"}.pdf`;
+}
+
+function createPdfDocument(title: string, sections: Array<{ attempt: GiupCyExamAttemptRow; details: AttemptAnswerDetail[] }>, questions: GiupCyExamQuestionRow[]) {
+  const width = 595.28;
+  const height = 841.89;
+  const margin = 42;
+  const lineHeight = 13;
+  const pages: string[] = [];
+  let commands = "";
+  let y = height - margin;
+
+  const newPage = () => {
+    if (commands) pages.push(commands);
+    commands = "";
+    y = height - margin;
+  };
+
+  const line = (text: string, size = 10, indent = 0) => {
+    if (y < margin + lineHeight) newPage();
+    commands += `BT /F1 ${size} Tf ${margin + indent} ${y.toFixed(2)} Td (${escapePdfText(toPdfText(text))}) Tj ET\n`;
+    y -= lineHeight;
+  };
+
+  const wrapped = (text: string, size = 10, indent = 0, maxChars = 92) => {
+    for (const entry of wrapPdfText(text, maxChars)) line(entry, size, indent);
+  };
+
+  line("Life & Work OS / Giup Cy", 10);
+  line(title, 18);
+  y -= 8;
+
+  for (const { attempt, details } of sections) {
+    line(`Hoc sinh: ${attempt.student_name}`, 13);
+    line(`Diem: ${formatScore(attempt)} | Dung: ${attempt.correct_count}/${attempt.graded_count} | Da cham: ${attempt.graded_count}/${attempt.total_count}`);
+    line(`Thoi gian nop: ${new Date(attempt.submitted_at).toLocaleString("vi-VN")}`);
+    y -= 8;
+
+    for (const detail of details) {
+      const question = questionForDetail(questions, detail);
+      line(`Cau ${detail.questionNumber} - ${resultLabel(detail)} - ${detail.earnedPoints}/${detail.points} diem`, 11);
+      wrapped(`Noi dung: ${question?.prompt ?? "Chua tim thay noi dung cau hoi."}`, 9, 10, 96);
+      wrapped(`Dap an dung: ${formatAnswer(detail.correctAnswer)}`, 9, 10, 96);
+      wrapped(`Hoc sinh chon: ${formatAnswer(detail.answer)}`, 9, 10, 96);
+      y -= 6;
+    }
+
+    y -= 10;
+  }
+
+  if (commands) pages.push(commands);
+
+  const objects: string[] = [];
+  objects.push("<< /Type /Catalog /Pages 2 0 R >>");
+  objects.push(`<< /Type /Pages /Kids [${pages.map((_, index) => `${index * 2 + 3} 0 R`).join(" ")}] /Count ${pages.length} >>`);
+
+  pages.forEach((page, index) => {
+    const pageObject = index * 2 + 3;
+    const contentObject = pageObject + 1;
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /Font << /F1 ${pages.length * 2 + 3} 0 R >> >> /Contents ${contentObject} 0 R >>`);
+    objects.push(`<< /Length ${page.length} >>\nstream\n${page}endstream`);
+  });
+
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => {
+    pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+
+  return new Blob([pdf], { type: "application/pdf" });
+}
+
+function downloadBlob(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
   const router = useRouter();
   const [answers, setAnswers] = useState(() =>
@@ -130,15 +258,10 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
   );
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [openAttemptId, setOpenAttemptId] = useState<string | null>(attempts[0]?.id ?? null);
-  const [printAttemptId, setPrintAttemptId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const pdfUrl = getExamPdfUrl(exam);
 
   const autoGradeCount = useMemo(() => questions.filter((question) => question.correct_answer !== null && question.correct_answer !== "").length, [questions]);
-  const printAttempts = useMemo(
-    () => (printAttemptId ? attempts.filter((attempt) => attempt.id === printAttemptId) : attempts),
-    [attempts, printAttemptId]
-  );
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -147,12 +270,6 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
 
     return () => window.clearInterval(interval);
   }, [router]);
-
-  useEffect(() => {
-    const resetPrintTarget = () => setPrintAttemptId(null);
-    window.addEventListener("afterprint", resetPrintTarget);
-    return () => window.removeEventListener("afterprint", resetPrintTarget);
-  }, []);
 
   function saveAnswer(question: GiupCyExamQuestionRow) {
     setPendingId(question.id);
@@ -175,13 +292,12 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
   }
 
   function exportPdf() {
-    setPrintAttemptId(null);
-    window.setTimeout(() => window.print(), 0);
+    const sections = attempts.map((attempt) => ({ attempt, details: parseAttemptDetails(attempt) }));
+    downloadBlob(createPdfDocument(exam.title, sections, questions), pdfFileName(exam));
   }
 
-  function exportAttemptPdf(attemptId: string) {
-    setPrintAttemptId(attemptId);
-    window.setTimeout(() => window.print(), 0);
+  function exportAttemptPdf(attempt: GiupCyExamAttemptRow) {
+    downloadBlob(createPdfDocument(exam.title, [{ attempt, details: parseAttemptDetails(attempt) }], questions), pdfFileName(exam, attempt));
   }
 
   function exportCsv() {
@@ -282,7 +398,7 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
                   </td>
                   <td className="px-3 py-3">{new Date(attempt.submitted_at).toLocaleString("vi-VN")}</td>
                   <td className="rounded-r-2xl px-3 py-3 text-right">
-                    <Button type="button" variant="ghost" size="sm" onClick={() => exportAttemptPdf(attempt.id)} className="print:hidden">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => exportAttemptPdf(attempt)} className="print:hidden">
                       <Download className="size-4" />
                       PDF
                     </Button>
@@ -344,13 +460,11 @@ export function GiupCyExamDetail({ exam, questions, attempts }: Props) {
         <div className="mb-6">
           <p className="text-sm font-semibold text-text-secondary">Life & Work OS / Giúp Cy</p>
           <h1 className="mt-2 text-2xl font-bold text-text-primary">{exam.title}</h1>
-          <p className="mt-2 text-sm text-text-secondary">
-            {printAttemptId ? "Báo cáo kết quả riêng từng học sinh" : "Báo cáo kết quả chi tiết từng câu"}
-          </p>
+          <p className="mt-2 text-sm text-text-secondary">Báo cáo kết quả chi tiết từng câu</p>
         </div>
 
         <div className="space-y-8">
-          {printAttempts.map((attempt) => {
+          {attempts.map((attempt) => {
             const details = parseAttemptDetails(attempt);
             return (
               <section key={attempt.id} className="break-inside-avoid rounded-2xl border border-slate-300 bg-white p-4">
