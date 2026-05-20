@@ -11,8 +11,15 @@ export type GiupCyWorkspace = {
   supabase: SupabaseClient;
 };
 
-async function findSharedOwnerUser(): Promise<AuthUser> {
-  const supabase = createAdminClient();
+function tryCreateAdminClient() {
+  try {
+    return createAdminClient();
+  } catch {
+    return null;
+  }
+}
+
+async function findSharedOwnerUser(): Promise<AuthUser | null> {
   const ownerUserId = process.env.GIUP_CY_SHARED_OWNER_USER_ID;
   const ownerEmail = (process.env.GIUP_CY_SHARED_OWNER_EMAIL ?? GIUP_CY_SHARED_OWNER_EMAIL).toLowerCase();
   const ownerAlias = (process.env.GIUP_CY_SHARED_OWNER_ALIAS ?? GIUP_CY_SHARED_OWNER_ALIAS).toLowerCase();
@@ -20,6 +27,15 @@ async function findSharedOwnerUser(): Promise<AuthUser> {
   if (ownerUserId) {
     return { id: ownerUserId, email: ownerEmail };
   }
+
+  const userClient = await createClient();
+  const { data: rpcOwnerUserId } = await userClient.rpc("giup_cy_owner_user_id");
+  if (rpcOwnerUserId) {
+    return { id: rpcOwnerUserId as string, email: ownerEmail };
+  }
+
+  const supabase = tryCreateAdminClient();
+  if (!supabase) return null;
 
   const { data: profileByEmail } = await supabase
     .from("profiles")
@@ -49,17 +65,13 @@ async function findSharedOwnerUser(): Promise<AuthUser> {
     return { id: owner.id, email: owner.email ?? ownerEmail };
   }
 
-  throw new Error(`Không tìm thấy tài khoản owner Giúp Cy "${ownerAlias}".`);
+  return null;
 }
 
 export async function resolveGiupCyWorkspaceUser(user: AuthUser): Promise<AuthUser> {
   if (!isGiupCySharedManagerEmail(user.email)) return user;
 
-  try {
-    return await findSharedOwnerUser();
-  } catch {
-    return user;
-  }
+  return (await findSharedOwnerUser()) ?? user;
 }
 
 export async function getGiupCyWorkspace(user: AuthUser): Promise<GiupCyWorkspace> {
@@ -71,10 +83,10 @@ export async function getGiupCyWorkspace(user: AuthUser): Promise<GiupCyWorkspac
     };
   }
 
-  const ownerUser = await findSharedOwnerUser();
+  const ownerUser = (await findSharedOwnerUser()) ?? user;
   return {
     ownerUser,
     delegated: true,
-    supabase: createAdminClient()
+    supabase: tryCreateAdminClient() ?? (await createClient())
   };
 }
